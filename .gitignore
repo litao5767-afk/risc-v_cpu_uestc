@@ -1,0 +1,8 @@
+*
+!/rtl/
+!/rtl/**
+!/testbench/
+!/testbench/**
+!.gitignore
+!/docs/
+!/docs/*.md
