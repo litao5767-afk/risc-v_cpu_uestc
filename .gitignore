@@ -4,5 +4,4 @@
 !/testbench/
 !/testbench/**
 !.gitignore
-!/docs/
-!/docs/*.md
+!README.md
