@@ -26,14 +26,25 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 | **B-type** | `imm[7]` \| `rs2[5]` \| `rs1[5]` \| `funct3[3]` \| `imm[5]` \| `opcode[7]` | 条件分支 | `beq`, `bne`, `blt` |
 | **J-type** | `imm[20]` \| `rd[5]` \| `opcode[7]` | 长跳转 | `jal` |
 | **U-type** | `imm[20]` \| `rd[5]` \| `opcode[7]` | 高位立即数 | `lui`, `auipc` |
+
 **位宽说明**：  
 - `[n]` 表示该字段占用的位数  
 - 立即数字段需符号扩展为32位  
 - 所有指令总长度固定为32位
 
-## 2.完整指令集编码表
+## 2.立即数映射
+| **指令类型** | **立即数映射** |
+|----------|----------|
+| **I-type** |`inst[31:20]->imm[11:0]`|
+| **S-type** |`inst[31:25]->imm[11:5]`<br>`inst[11:7]->imm[4:0]`|
+| **B-type** |`inst[31:25]->imm[12\|10:5]`<br>`inst[11:7]->imm[4:1\|11]`|
+| **J-type** |`inst[31:12]->imm[20\|10:1\|11\|19:12]`|
+| **U-type** |`inst[31:12]->imm[31:12]`|
 
-### 2.1 整数运算指令
+
+## 3.完整指令集编码表
+
+### 3.1 整数运算指令
 
 | **指令** | **汇编格式** | **类型** | **opcode** | **funct3** | **funct7** | **操作** |
 |----------|--------------|----------|------------|------------|------------|----------|
@@ -57,7 +68,7 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 | `srli`   | `srli rd, rs1, shamt` | I-type | `0010011` | `101` | `0000000` | rd = rs1 >> shamt (逻辑) |
 | `srai`   | `srai rd, rs1, shamt` | I-type | `0010011` | `101` | `0100000` | rd = rs1 >> shamt (算术) |
 
-### 2.2 加载/存储指令
+### 3.2 加载/存储指令
 
 | **指令** | **汇编格式** | **类型** | **opcode** | **funct3** | **操作** |
 |----------|--------------|----------|------------|------------|----------|
@@ -70,7 +81,7 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 | `sh`     | `sh rs2, offset(rs1)` | S-type | `0100011` | `001` | Mem[rs1+offset][15:0] = rs2[15:0] |
 | `sw`     | `sw rs2, offset(rs1)` | S-type | `0100011` | `010` | Mem[rs1+offset] = rs2 |
 
-### 2.3 分支/跳转指令
+### 3.3 分支/跳转指令
 
 | **指令** | **汇编格式** | **类型** | **opcode** | **funct3** | **操作** |
 |----------|--------------|----------|------------|------------|----------|
@@ -83,7 +94,7 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 | `jal`    | `jal rd, offset` | J-type | `1101111` | - | rd = PC+4; PC += offset×2 |
 | `jalr`   | `jalr rd, offset(rs1)` | I-type | `1100111` | `000` | rd = PC+4; PC = rs1 + offset |
 
-## 2.4 其他指令
+## 3.4 其他指令
 | **指令** | **汇编格式** | **类型** | **opcode** | **操作** |
 |----------|--------------|----------|------------|----------|
 | `lui`    | `lui rd, imm` | U-type | `0110111` | rd = imm << 12 |
@@ -144,7 +155,9 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 |`pc_next`|input|`DATA_WIDTH`|下一条指令地址|
 |`pc_current`|output|`DATA_WIDTH`|当前执行指令地址|
 
-## 6.controller
+## 6.imm_gen
+
+## 7.controller
 - 描述：产生数据通路各个模块的控制选择信号。
 - 端口：
 
