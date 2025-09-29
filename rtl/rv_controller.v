@@ -1,14 +1,22 @@
+// ============================================================================
+// Module: rv_controller
+// Author: QiShui47
+// Created: 2025-09-28
+// Description: 
+// - instruction decoder
+// ============================================================================
+
 module rv_controller(
-    input [31:0] inst,       //指令码传入
-    output reg [2:0] branch, //跳转
-    output reg mem_read,
-    output reg mem_write,
-    output reg mem_to_reg,
-    output reg [2:0] mem_op, //存储器读写格式
-    output reg [3:0] alu_op, //alu控制指令
-    output reg [2:0] alu_src,//低1位表示操作数1选择rs1(0)/pc(1)，高2位表示操作数2选择rs2(00)/imm(01)/常数4(10)
-    output reg [2:0] imm_op, //立即数类型（对应top模块中的imm-gen部分）
-    output reg reg_write     //寄存器写入请求
+    input      [31:0] inst,      //指令码传入
+    output reg        mem_write, //Mem写使能
+    output reg        mem_to_reg,//从Mem写回Reg
+    output reg        reg_write, //从ALU写回Reg
+    output reg [2:0]  mem_op,    //Mem读写格式（字节数/是否进行符号扩展）
+    output reg [3:0]  alu_op,    //ALU控制指令
+    output reg [2:0]  alu_src,   //低1位表示操作数1选择rs1(0)/pc(1)，高2位表示操作数2选择rs2(00)/imm(01)/常数4(10)
+    output reg [2:0]  imm_op,    //立即数类型（对应top模块中的imm-gen部分）
+    output reg [2:0]  branch     //跳转类型
+    
     );
 //intruction decode//
 wire [6:0] funct7,opcode;
@@ -29,109 +37,109 @@ begin
             reg_write = 1'b1;//需写回寄存器rd
             branch = 3'b000; //不跳转
             imm_op = 3'b000; //不生成立即数
+            mem_write = 1'b0;
+            mem_op = 3'b000;  //无需操作存储器
+            mem_to_reg = 1'b0;
             case({funct7[5],funct3})
                 4'b0_000://add
-                begin
                     alu_op = 4'b0000;
-                end
                 4'b1_000://sub
-                begin
                     alu_op = 4'b1000;
-                end
                 4'b0_001://sll 逻辑左移
-                begin
                     alu_op = 4'b0001;
-                end
                 4'b0_010://slt 算数小于
-                begin
                     alu_op = 4'b0010;
-                end
                 4'b0_011://sltu 逻辑小于（无符号数）
-                begin
                     alu_op = 4'b1010;
-                end
                 4'b0_100://xor 异或
-                begin
                     alu_op = 4'b0100;
-                end
                 4'b0_101://srl 逻辑右移（高位补0）
-                begin
                     alu_op = 4'b0101;
-                end
                 4'b1_101://sra 算数右移（高位补符号位）
-                begin
                     alu_op = 4'b1101;
-                end
                 4'b0_110://or 按位或
-                begin
                     alu_op = 4'b0110;
-                end
                 4'b0_111://and 按位与
-                begin
                     alu_op = 4'b0111;
-                end
-                default://错误编码
-                begin
-                    alu_op = 4'b0;
-                end
+                default: //错误编码
+                    alu_op = 4'b0000;
             endcase
         end
-        5'b00000://i-type 短立即数类型
+        5'b00000://i-type 短立即数类型（内存读取）
         begin
-            
+            alu_op = 4'b0000; //alu做加法运算
+            alu_src = 3'b01_0;//rs1+imm
+            reg_write = 1'b0;
+            branch = 3'b000;
+            imm_op = 3'b001;  //immi
+            mem_write = 1'b0;
+            mem_to_reg = 1'b1;
+            case(funct3)
+                3'b000://lb 读出该地址的1字节数据
+                    mem_op = 3'b001;
+                3'b001://lh 读出该地址的2字节数据
+                    mem_op = 3'b010;
+                3'b010://lw 读出该地址的4字节数据
+                    mem_op = 3'b011;
+                3'b100://lbu 读出该地址的1字节数据（不使用符号扩展）
+                    mem_op = 3'b101;
+                3'b101://lhu 读出该地址的2字节数据（不使用符号扩展）
+                    mem_op = 3'b110;
+                default:
+                    mem_op = 3'b000;
+            endcase
+        end
+        5'b00100://i-type 短立即数类型
+        begin
+            case(funct3)
+                
+            endcase
         end
         5'b11000://b-type 条件跳转类型
         begin
             //alu做sub运算输出zero/less标志位，pc计算使用专用加法器
             //有一种备选方案是alu做slt运算输出标志位（这样可以与无符号数条件跳转指令统一起来）
+            alu_src = 3'b00_0;
+            reg_write = 1'b0;//无需写回寄存器
+            imm_op = 3'b100; //immb
+            mem_write = 1'b0;
+            mem_op = 3'b000;  //无需操作存储器
+            mem_to_reg = 1'b0;
             case(funct3)
                 3'b000://beq 相等时跳转
                 begin
                     alu_op = 4'b1000;
-                    alu_src = 3'b00_0;
-                    reg_write = 1'b0;//无需写回寄存器
                     branch = 3'b100; //相等时跳转
-                    imm_op = 3'b100; //immb
                 end
                 3'b001://bne 不等时跳转
                 begin
                     alu_op = 4'b1000;
-                    alu_src = 3'b00_0;
-                    reg_write = 1'b0;//无需写回寄存器
                     branch = 3'b101; //不等时跳转
-                    imm_op = 3'b100; //immb
                 end
                 3'b100://blt rs1小于rs2时跳转
                 begin
                     alu_op = 4'b1000;
-                    alu_src = 3'b00_0;
-                    reg_write = 1'b0;//无需写回寄存器
                     branch = 3'b110; //小于时跳转
-                    imm_op = 3'b100; //immb
                 end
                 3'b101://bge rs1大于等于rs2时跳转
                 begin
                     alu_op = 4'b1000;
-                    alu_src = 3'b00_0;
-                    reg_write = 1'b0;//无需写回寄存器
                     branch = 3'b111; //不小于时跳转
-                    imm_op = 3'b100; //immb
                 end
                 3'b110://bltu rs1小于rs2时跳转（操作数均为无符号数）
                 begin
-                    alu_op = 4'b1010;//需要alu使用sltu运算输出zero/less标志位
-                    alu_src = 3'b00_0;
-                    reg_write = 1'b0;//无需写回寄存器
+                    alu_op = 4'b1010;//alu使用sltu运算输出zero/less标志位
                     branch = 3'b110; //小于时跳转
-                    imm_op = 3'b100; //immb
                 end
                 3'b111://bgeu rs1大于等于rs2时跳转（操作数均为无符号数）
                 begin
-                    alu_op = 4'b1010;//需要alu使用sltu运算输出zero/less标志位
-                    alu_src = 3'b00_0;
-                    reg_write = 1'b0;//无需写回寄存器
+                    alu_op = 4'b1010;//alu使用sltu运算输出zero/less标志位
                     branch = 3'b111; //不小于时跳转
-                    imm_op = 3'b100; //immb
+                end
+                default:
+                begin
+                    alu_op = 4'b0000;
+                    branch = 3'b000;
                 end
             endcase
         end
@@ -143,6 +151,9 @@ begin
             reg_write = 1'b1;
             branch = 3'b001;//无条件跳转至pc目标
             imm_op = 3'b101;//immj
+            mem_write = 1'b0;
+            mem_op = 3'b000;  //无需操作存储器
+            mem_to_reg = 1'b0;
         end
         5'b11001://j-type jalr无条件跳转类型
         begin
@@ -152,20 +163,28 @@ begin
             reg_write = 1'b1;
             branch = 3'b010;//无条件跳转至寄存器目标
             imm_op = 3'b001;//immi
+            mem_write = 1'b0;
+            mem_op = 3'b000;  //无需操作存储器
+            mem_to_reg = 1'b0;
         end
         5'b01000://s-type 内存存储类型
         begin
+            alu_op = 4'b0000; //alu做加法运算
+            alu_src = 3'b01_0;//rs1+imm
+            reg_write = 1'b0;
+            branch = 3'b000;
+            imm_op = 3'b011;  //imms
+            mem_write = 1'b1;
+            mem_to_reg = 1'b0;
             case(funct3)
-                3'b000://sb 立即数符号扩展后，与源寄存器1相加作为数据存储器的地址，将源寄存器2的最低字节存入
-                begin
-                    alu_op = 4'b0000; //alu做加法运算
-                    alu_src = 3'b01_0;//rs1+imm
-                    reg_write = 1'b0;
-                    branch = 3'b000;
-                    imm_op = 3'b011; //imms
-                    mem_write = 1'b1;
+                3'b000://sb 将rs2的最低的1个字节存入
+                    mem_op = 3'b001;
+                3'b001://sh 将rs2的最低的2个字节存入
+                    mem_op = 3'b010;
+                3'b010://sw 将rs2的全部的4个字节存入
+                    mem_op = 3'b011;
+                default:
                     mem_op = 3'b000;
-                end//end//
             endcase
         end
         5'b01101://u-type lui高位立即数类型
@@ -174,7 +193,10 @@ begin
             alu_src = 3'b01_0;//仅使用立即数
             reg_write = 1'b1;
             branch = 3'b000;
-            imm_op = 3'b010;//immu
+            imm_op = 3'b010;  //immu
+            mem_write = 1'b0;
+            mem_op = 3'b000;  //无需操作存储器
+            mem_to_reg = 1'b0;
         end
         5'b00101://u-type auipc高位立即数类型
         begin
@@ -182,11 +204,21 @@ begin
             alu_src = 3'b01_1;//pc+imm
             reg_write = 1'b1;
             branch = 3'b000;
-            imm_op = 3'b010;//immu
+            imm_op = 3'b010;  //immu
+            mem_write = 1'b0;
+            mem_op = 3'b000;  //无需操作存储器
+            mem_to_reg = 1'b0;
         end
         default:
         begin
-            
+            alu_op = 4'b0000;
+            alu_src = 3'b00_0;
+            reg_write = 1'b0;
+            branch = 3'b000;
+            imm_op = 3'b000;  //不产生立即数
+            mem_write = 1'b0;
+            mem_op = 3'b000;  //无需操作存储器
+            mem_to_reg = 1'b0;
         end
     endcase
 end
