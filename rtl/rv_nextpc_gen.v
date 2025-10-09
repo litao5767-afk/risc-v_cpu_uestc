@@ -5,57 +5,58 @@
 // Description: 
 // - NextPC Generator(Dedicated Adder)
 // ============================================================================
+import my_pkg.sv::*;
 module rv_nextpc_gen(
-    input             zero,
-    input             less,
-    input      [2:0]  branch,
-    input      [31:0] pc,
-    input      [31:0] rs,
-    input      [31:0] imm,
-    output reg [31:0] nextpc
+    input  wire                      zero       ,
+    input  wire                      less       ,
+    input  wire [2 : 0]              branch     ,
+    input  wire [DATA_WIDTH - 1 : 0] pc         ,
+    input  wire [DATA_WIDTH - 1 : 0] rs         ,
+    input  wire [DATA_WIDTH - 1 : 0] imm        ,
+    output reg  [DATA_WIDTH - 1 : 0] nextpc
     );
 wire const;
 assign const = 32'h00000004;
 always@(*)
 begin
     case(branch)
-        3'b000://²»Ìø×ª
+        3'b000://ï¿½ï¿½ï¿½ï¿½×ª
         begin
             nextpc = pc + const;
         end
-        3'b100://beq ÏàµÈÊ±Ìø×ª
+        3'b100://beq ï¿½ï¿½ï¿½Ê±ï¿½ï¿½×ª
         begin
             if(!zero)
                 nextpc = pc + const;
             else
                 nextpc = pc + imm;
         end
-        3'b101://bne ²»µÈÊ±Ìø×ª
+        3'b101://bne ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½×ª
         begin
             if(zero)
                 nextpc = pc + const;
             else
                 nextpc = pc + imm;
         end
-        3'b110://blt bltu Ð¡ÓÚÊ±Ìø×ª
+        3'b110://blt bltu Ð¡ï¿½ï¿½Ê±ï¿½ï¿½×ª
         begin
             if(!less)
                 nextpc = pc + const;
             else
                 nextpc = pc + imm;
         end
-        3'b111://bge bgeu ´óÓÚÊ±Ìø×ª
+        3'b111://bge bgeu ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½×ª
         begin
             if(zero||less)
                 nextpc = pc + const;
             else
                 nextpc = pc + imm;
         end
-        3'b001://jal  ÎÞÌõ¼þÌø×ªÖÁpcÄ¿±ê
+        3'b001://jal  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½pcÄ¿ï¿½ï¿½
         begin
             nextpc = pc + imm;
         end
-        3'b010://jalr ÎÞÌõ¼þÌø×ªÖÁ¼Ä´æÆ÷Ä¿±ê
+        3'b010://jalr ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½Ä´ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½
         begin
             nextpc = rs + imm;
         end

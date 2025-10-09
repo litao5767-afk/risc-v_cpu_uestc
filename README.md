@@ -26,14 +26,25 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 | **B-type** | `imm[7]` \| `rs2[5]` \| `rs1[5]` \| `funct3[3]` \| `imm[5]` \| `opcode[7]` | 条件分支 | `beq`, `bne`, `blt` |
 | **J-type** | `imm[20]` \| `rd[5]` \| `opcode[7]` | 长跳转 | `jal` |
 | **U-type** | `imm[20]` \| `rd[5]` \| `opcode[7]` | 高位立即数 | `lui`, `auipc` |
+
 **位宽说明**：  
 - `[n]` 表示该字段占用的位数  
 - 立即数字段需符号扩展为32位  
 - 所有指令总长度固定为32位
 
-## 2.完整指令集编码表
+## 2.立即数映射
+| **指令类型** | **立即数映射** |
+|----------|----------|
+| **I-type** |`inst[31:20]->imm[11:0]`|
+| **S-type** |`inst[31:25]->imm[11:5]`<br>`inst[11:7]->imm[4:0]`|
+| **B-type** |`inst[31:25]->imm[12\|10:5]`<br>`inst[11:7]->imm[4:1\|11]`|
+| **J-type** |`inst[31:12]->imm[20\|10:1\|11\|19:12]`|
+| **U-type** |`inst[31:12]->imm[31:12]`|
 
-### 2.1 整数运算指令
+
+## 3.完整指令集编码表
+
+### 3.1 整数运算指令
 
 | **指令** | **汇编格式** | **类型** | **opcode** | **funct3** | **funct7** | **操作** |
 |----------|--------------|----------|------------|------------|------------|----------|
@@ -57,7 +68,7 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 | `srli`   | `srli rd, rs1, shamt` | I-type | `0010011` | `101` | `0000000` | rd = rs1 >> shamt (逻辑) |
 | `srai`   | `srai rd, rs1, shamt` | I-type | `0010011` | `101` | `0100000` | rd = rs1 >> shamt (算术) |
 
-### 2.2 加载/存储指令
+### 3.2 加载/存储指令
 
 | **指令** | **汇编格式** | **类型** | **opcode** | **funct3** | **操作** |
 |----------|--------------|----------|------------|------------|----------|
@@ -70,20 +81,20 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 | `sh`     | `sh rs2, offset(rs1)` | S-type | `0100011` | `001` | Mem[rs1+offset][15:0] = rs2[15:0] |
 | `sw`     | `sw rs2, offset(rs1)` | S-type | `0100011` | `010` | Mem[rs1+offset] = rs2 |
 
-### 2.3 分支/跳转指令
+### 3.3 分支/跳转指令
 
 | **指令** | **汇编格式** | **类型** | **opcode** | **funct3** | **操作** |
 |----------|--------------|----------|------------|------------|----------|
-| `beq`    | `beq rs1, rs2, offset` | B-type | `1100011` | `000` | if (rs1 == rs2) PC += offset×2 |
-| `bne`    | `bne rs1, rs2, offset` | B-type | `1100011` | `001` | if (rs1 != rs2) PC += offset×2 |
-| `blt`    | `blt rs1, rs2, offset` | B-type | `1100011` | `100` | if (rs1 < rs2) PC += offset×2 (有符号) |
-| `bge`    | `bge rs1, rs2, offset` | B-type | `1100011` | `101` | if (rs1 >= rs2) PC += offset×2 (有符号) |
-| `bltu`   | `bltu rs1, rs2, offset` | B-type | `1100011` | `110` | if (rs1 < rs2) PC += offset×2 (无符号) |
-| `bgeu`   | `bgeu rs1, rs2, offset` | B-type | `1100011` | `111` | if (rs1 >= rs2) PC += offset×2 (无符号) |
-| `jal`    | `jal rd, offset` | J-type | `1101111` | - | rd = PC+4; PC += offset×2 |
+| `beq`    | `beq rs1, rs2, offset` | B-type | `1100011` | `000` | if (rs1 == rs2) PC += offset |
+| `bne`    | `bne rs1, rs2, offset` | B-type | `1100011` | `001` | if (rs1 != rs2) PC += offset |
+| `blt`    | `blt rs1, rs2, offset` | B-type | `1100011` | `100` | if (rs1 < rs2) PC += offset (有符号) |
+| `bge`    | `bge rs1, rs2, offset` | B-type | `1100011` | `101` | if (rs1 >= rs2) PC += offset (有符号) |
+| `bltu`   | `bltu rs1, rs2, offset` | B-type | `1100011` | `110` | if (rs1 < rs2) PC += offset (无符号) |
+| `bgeu`   | `bgeu rs1, rs2, offset` | B-type | `1100011` | `111` | if (rs1 >= rs2) PC += offset (无符号) |
+| `jal`    | `jal rd, offset` | J-type | `1101111` | - | rd = PC+4; PC += offset |
 | `jalr`   | `jalr rd, offset(rs1)` | I-type | `1100111` | `000` | rd = PC+4; PC = rs1 + offset |
 
-## 2.4 其他指令
+## 3.4 其他指令
 | **指令** | **汇编格式** | **类型** | **opcode** | **操作** |
 |----------|--------------|----------|------------|----------|
 | `lui`    | `lui rd, imm` | U-type | `0110111` | rd = imm << 12 |
@@ -107,7 +118,7 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 |`data_rd2`|output|`DATA_WIDTH`|读数据2|
 
 ## 2.data_mem
-- 描述：数据存储器建模。字节寻址，`1024`地址数，大小`4KB`。同步读写。
+- 描述：数据存储器建模。字节寻址，大小`64KB`。同步读写。
 - 端口：
 
 |信号名称|方向|位宽|描述|
@@ -120,7 +131,7 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 |`data_rd`|output|`DATA_WIDTH`|读数据|
 
 ## 3.inst_mem
-- 描述：指令存储器建模，只读。字节寻址，`1024`地址数，大小`4KB`。同步读。
+- 描述：指令存储器建模，只读。字节寻址，大小`64KB`。同步读。
 - 端口：
 
 |信号名称|方向|位宽|描述|
@@ -134,7 +145,7 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 - 描述：算术运算单元。支持加减运算，逻辑运算。
 
 ## 5.pc_counter
-- 描述：得到下一条指令的地址。
+- 描述：得到下一条指令的地址。复位到地址`0x0000_1000`.
 - 端口：
 
 |信号名称|方向|位宽|描述|
@@ -144,19 +155,42 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 |`pc_next`|input|`DATA_WIDTH`|下一条指令地址|
 |`pc_current`|output|`DATA_WIDTH`|当前执行指令地址|
 
-## 6.controller
+## 6.imm_gen
+- 描述：根据指令类型生成相应格式的立即数
+- 端口：
+
+|信号名称|方向|位宽|描述|
+|-------|----|----|---|
+|`inst`|input|`DATA_WIDTH`|指令|
+|`imm` |output|`DATA_WIDTH`|立即数|
+
+## 7.controller
 - 描述：产生数据通路各个模块的控制选择信号。
 - 端口：
 
 |信号名称|方向|位宽|描述|
 |-------|----|----|---|
 |`inst`|input|`DATA_WIDTH`|指令|
-|`Branch`|output|`3`|跳转|
-|`Mem_Read`|output|`1`|数据存储器读控制?|
-|`Mem_Write`|output|`1`|数据存储器写控制|
-|`Mem_to_Reg`|output|`1`|数据存储器写回|
-|`Mem_OP`|output|`3`|存储器读写格式|
-|`ALU_OP`|output|`4`|ALU控制指令|
-|`ALU_SRC`|output|`3`|ALU选择源操作数|
-|`IMM_OP`|output|`3`|立即数类型|
-|`Reg_Write`|output|`1`|寄存器文件写控制|
+|`branch`|output|`3`|跳转|
+|`mem_read`|output|`1`|数据存储器读控制?|
+|`mem_write`|output|`1`|数据存储器写控制|
+|`mem_to_reg`|output|`1`|数据存储器写回|
+|`mem_op`|output|`3`|存储器读写格式|
+|`alu_op`|output|`4`|ALU控制指令|
+|`alu_src`|output|`3`|ALU选择源操作数|
+|`imm_op`|output|`3`|立即数类型|
+|`reg_write`|output|`1`|寄存器文件写控制|
+
+- ALU控制指令编码:
+
+|alu_op|ALU操作|
+|------|------|
+|`0000`|add|
+|`1000`|sub|
+|`0001`|sll|
+|`0010`|slt|
+|`1010`|sltu|
+|`0100`|xor|
+|`0101`|srl|
+|`1101`|sra|
+|`0111`|and|

@@ -7,11 +7,8 @@
 // ============================================================================
 
 `timescale 1ns / 1ps
-
-module inst_mem #(
-    parameter DATA_WIDTH = 32,
-    parameter ADDR_WIDTH = 32
-)
+import my_pkg.sv::*;
+module inst_mem
 (
     input  wire                             clk    ,
     input  wire                             rst_n  ,
@@ -19,14 +16,20 @@ module inst_mem #(
     output reg  [DATA_WIDTH - 1 : 0]        inst   
 );
 
-    reg [DATA_WIDTH - 1 : 0] mem [0 : 1023];
+    wire addr_fault = (addr[1 : 0] != 2'b00) ? 'b1 : 'b0;
+    reg [7 : 0] mem [0 : MEM_INST_DEPTH - 1];
 
     always@(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             inst <= '0;
         end
         else begin
-            inst <= mem[addr[11 : 2]];
+            if(addr_fault) begin
+                inst <= 'h0000_0013;    //NOP
+            end
+            else begin
+                inst <= {mem[addr + 3], mem[addr + 2], mem[addr + 1], mem[addr + 0]};
+            end
         end
     end
 endmodule

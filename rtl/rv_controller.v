@@ -5,18 +5,17 @@
 // Description: 
 // - Instruction Decoder
 // ============================================================================
-
+import my_pkg.sv::*;
 module rv_controller(
-    input      [31:0] inst,      //指令码传入
-    output reg        mem_write, //Mem写使能
-    output reg        mem_to_reg,//从Mem写回Reg
-    output reg        reg_write, //从ALU写回Reg
-    output reg [2:0]  mem_op,    //Mem读写格式（字节数/是否进行符号扩展）
-    output reg [3:0]  alu_op,    //ALU控制指令
-    output reg [2:0]  alu_src,   //低1位表示操作数1选择rs1(0)/pc(1)，高2位表示操作数2选择rs2(00)/imm(01)/常数4(10)
-    output reg [2:0]  imm_op,    //立即数类型（对应top模块中的imm-gen部分）
-    output reg [2:0]  branch     //跳转类型
-    
+    input  wire [DATA_WIDTH - 1 : 0] inst        ,//指令码传入
+    output reg                       mem_write   ,//Mem写使能
+    output reg                       mem_to_reg  ,//从Mem写回Reg
+    output reg                       reg_write   ,//从ALU写回Reg
+    output reg  [2 : 0]              mem_op      ,//Mem读写格式（字节数/是否进行符号扩展）
+    output reg  [3 : 0]              alu_op      ,//ALU控制指令
+    output reg  [2 : 0]              alu_src     ,//低1位表示操作数1选择rs1(0)/pc(1)，高2位表示操作数2选择rs2(00)/imm(01)/常数4(10)
+    output reg  [2 : 0]              imm_op      ,//立即数类型（对应top模块中的imm-gen部分）
+    output reg  [2 : 0]              branch       //跳转类型
     );
 //intruction decode//
 wire [6:0] funct7,opcode;

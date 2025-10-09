@@ -7,31 +7,65 @@
 // ============================================================================
 
 `timescale 1ns / 1ps
-
-module data_mem #(
-    parameter DATA_WIDTH = 32,
-    parameter ADDR_WIDTH = 32
-)
+import my_pkg::*;
+module data_mem
 (
     input  wire                              clk        ,
     input  wire                              rst_n      ,
     input  wire                              wr_en      ,
+    input  wire                              rd_en      ,
+    input  wire [2 : 0]                      mem_op     ,
     input  wire [ADDR_WIDTH - 1 : 0]         addr       ,
     input  wire [DATA_WIDTH - 1 : 0]         data_wr    ,
     output reg  [DATA_WIDTH - 1 : 0]         data_rd    
 );
 
-    reg [DATA_WIDTH - 1 : 0] mem [0 : 1023];
+    wire addr_fault = (addr[1 : 0] != 2'b00) ? 'b1 : 'b0;
+    reg [7 : 0] mem [0 : MEM_DATA_DEPTH - 1];
 
     always@(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             data_rd <= '0;
-        end 
+        end
         else begin
-            if(wr_en) begin
-                mem[addr[11 : 2]] <= data_wr;
+            if(rd_en && !addr_fault) begin
+                case(mem_op)
+                    MEM_LB:begin
+                        data_rd <= {{24{mem[addr][7]}}, mem[addr]};
+                    end
+                    MEM_LH:begin
+                        data_rd <= {{16{mem[addr + 1][7]}} ,mem[addr + 1], mem[addr]};
+                    end
+                    MEM_LW:begin
+                        data_rd <= {mem[addr + 3], mem[addr + 2], mem[addr + 1], mem[addr]};
+                    end
+                    MEM_LBU:begin
+                        data_rd <= {24'b0 ,mem[addr]};
+                    end
+                    MEM_LHU:begin
+                        data_rd <= {16'b0 ,mem[addr + 1], mem[addr]};
+                    end
+                    default:begin
+                        data_rd <= 'b0;
+                    end
+                endcase
             end
-            data_rd <= mem[addr[11 : 2]];
+        end
+    end
+
+    always@(posedge clk or negedge rst_n) begin
+        if(wr_en && !addr_fault) begin
+            case(mem_op)
+                MEM_SB:begin
+                    mem[addr + 0] <= data_wr[7 : 0];
+                end
+                MEM_SH:begin
+                    {mem[addr + 1], mem[addr]} <= data_wr[15:0];
+                end
+                MEM_SW:begin
+                    {mem[addr + 3], mem[addr + 2], mem[addr + 1], mem[addr]} <= data_wr;
+                end
+            endcase
         end
     end
 endmodule

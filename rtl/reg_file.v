@@ -7,10 +7,8 @@
 // ============================================================================
 
 `timescale 1ns / 1ps
-
-module reg_file #(
-    parameter DATA_WIDTH = 32
-)
+import my_pkg.sv::*;
+module reg_file
 (
     input  wire                          clk        ,
     input  wire                          rst_n      ,
