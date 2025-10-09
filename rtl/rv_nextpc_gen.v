@@ -59,6 +59,10 @@ begin
         begin
             nextpc = rs + imm;
         end
+        default:
+        begin
+            nextpc = pc + const;
+        end
     endcase
 end
 endmodule
