@@ -3,7 +3,7 @@
 // Author: QiShui47
 // Created: 2025-09-28
 // Description: 
-// - instruction decoder
+// - Instruction Decoder
 // ============================================================================
 
 module rv_controller(
@@ -91,8 +91,32 @@ begin
         end
         5'b00100://i-type 短立即数类型
         begin
+            alu_src = 3'b01_0;//rs1+imm
+            reg_write = 1'b1;//需写回寄存器rd
+            branch = 3'b000; //不跳转
+            imm_op = 3'b001; //immi
+            mem_write = 1'b0;
+            mem_op = 3'b000;  //无需操作存储器
+            mem_to_reg = 1'b0;
             case(funct3)
-                
+                3'b000://addi
+                    alu_op = 4'b0000;
+                3'b010://slti
+                    alu_op = 4'b0010;
+                3'b011://sltiu
+                    alu_op = 4'b1010;
+                3'b100://xori
+                    alu_op = 4'b0100;
+                3'b110://ori
+                    alu_op = 4'b0110;
+                3'b111://andi
+                    alu_op = 4'b0111;
+                3'b001://slli
+                    alu_op = 4'b0001;
+                3'b101://srli || srai
+                    alu_op = {funct7[5],3'b101};
+                default://错误编码
+                    alu_op = 4'b0000;
             endcase
         end
         5'b11000://b-type 条件跳转类型
