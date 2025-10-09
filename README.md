@@ -118,7 +118,7 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 |`data_rd2`|output|`DATA_WIDTH`|读数据2|
 
 ## 2.data_mem
-- 描述：数据存储器建模。字节寻址，大小`16KB`。同步读写。
+- 描述：数据存储器建模。字节寻址，大小`64KB`。同步读写。
 - 端口：
 
 |信号名称|方向|位宽|描述|
@@ -131,7 +131,7 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 |`data_rd`|output|`DATA_WIDTH`|读数据|
 
 ## 3.inst_mem
-- 描述：指令存储器建模，只读。字节寻址，大小`16KB`。同步读。
+- 描述：指令存储器建模，只读。字节寻址，大小`64KB`。同步读。
 - 端口：
 
 |信号名称|方向|位宽|描述|
@@ -156,6 +156,13 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 |`pc_current`|output|`DATA_WIDTH`|当前执行指令地址|
 
 ## 6.imm_gen
+- 描述：根据指令类型生成相应格式的立即数
+- 端口：
+
+|信号名称|方向|位宽|描述|
+|-------|----|----|---|
+|`inst`|input|`DATA_WIDTH`|指令|
+|`imm` |output|`DATA_WIDTH`|立即数|
 
 ## 7.controller
 - 描述：产生数据通路各个模块的控制选择信号。
@@ -173,3 +180,18 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 |`alu_src`|output|`3`|ALU选择源操作数|
 |`imm_op`|output|`3`|立即数类型|
 |`reg_write`|output|`1`|寄存器文件写控制|
+
+- ALU控制指令编码:
+
+|alu_op|ALU操作|
+|------|------|
+|`0000`|add|
+|`1000`|sub|
+|`0001`|sll|
+|`0010`|slt|
+|`1010`|sltu|
+|`0100`|xor|
+|`0101`|srl|
+|`1101`|sra|
+|`0110`|or|
+|`0111`|and|
