@@ -118,7 +118,7 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 |`data_rd2`|output|`DATA_WIDTH`|读数据2|
 
 ## 2.data_mem
-- 描述：数据存储器建模。字节寻址，`1024`地址数，大小`4KB`。同步读写。
+- 描述：数据存储器建模。字节寻址，大小`16KB`。同步读写。
 - 端口：
 
 |信号名称|方向|位宽|描述|
@@ -131,7 +131,7 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 |`data_rd`|output|`DATA_WIDTH`|读数据|
 
 ## 3.inst_mem
-- 描述：指令存储器建模，只读。字节寻址，`1024`地址数，大小`4KB`。同步读。
+- 描述：指令存储器建模，只读。字节寻址，大小`16KB`。同步读。
 - 端口：
 
 |信号名称|方向|位宽|描述|
@@ -145,7 +145,7 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 - 描述：算术运算单元。支持加减运算，逻辑运算。
 
 ## 5.pc_counter
-- 描述：得到下一条指令的地址。
+- 描述：得到下一条指令的地址。复位到地址`0x0000_1000`.
 - 端口：
 
 |信号名称|方向|位宽|描述|
@@ -164,12 +164,12 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 |信号名称|方向|位宽|描述|
 |-------|----|----|---|
 |`inst`|input|`DATA_WIDTH`|指令|
-|`Branch`|output|`3`|跳转|
-|`Mem_Read`|output|`1`|数据存储器读控制?|
-|`Mem_Write`|output|`1`|数据存储器写控制|
-|`Mem_to_Reg`|output|`1`|数据存储器写回|
-|`Mem_OP`|output|`3`|存储器读写格式|
-|`ALU_OP`|output|`4`|ALU控制指令|
-|`ALU_SRC`|output|`3`|ALU选择源操作数|
-|`IMM_OP`|output|`3`|立即数类型|
-|`Reg_Write`|output|`1`|寄存器文件写控制|
+|`branch`|output|`3`|跳转|
+|`mem_read`|output|`1`|数据存储器读控制?|
+|`mem_write`|output|`1`|数据存储器写控制|
+|`mem_to_reg`|output|`1`|数据存储器写回|
+|`mem_op`|output|`3`|存储器读写格式|
+|`alu_op`|output|`4`|ALU控制指令|
+|`alu_src`|output|`3`|ALU选择源操作数|
+|`imm_op`|output|`3`|立即数类型|
+|`reg_write`|output|`1`|寄存器文件写控制|

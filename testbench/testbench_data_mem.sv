@@ -1,3 +1,4 @@
+import my_pkg::*;
 module testbench_data_mem();
 
 `define DUMP;
@@ -32,11 +33,11 @@ parameter t = 100;
 parameter rst_time = 5;
 parameter rst_time_delete = 10;
 parameter finish_time = 1000001;
-parameter DATA_WIDTH = 32;
-parameter ADDR_WIDTH = 32;
 logic clk    ;
 logic rst_n  ;
 logic wr_en  ;
+logic rd_en  ;
+logic [2 : 0]              mem_op ;
 logic [DATA_WIDTH - 1 : 0] addr   ;
 logic [DATA_WIDTH - 1 : 0] data_wr;
 logic [DATA_WIDTH - 1 : 0] data_rd;
@@ -52,6 +53,8 @@ data_mem dut(
 	.clk    (clk    ),
 	.rst_n  (rst_n  ),
 	.wr_en  (wr_en  ),
+    .rd_en  (rd_en  ),
+    .mem_op (mem_op ),
 	.addr   (addr   ),
 	.data_wr(data_wr),
 	.data_rd(data_rd)
@@ -91,6 +94,14 @@ initial begin       //finish
             repeat(10) begin
                 repeat($urandom_range(5, 1)) @(posedge clk);
                 wr_en = $urandom_range(1, 0);
+                rd_en = $urandom_range(1, 0);
+            end
+        end
+
+        begin
+            repeat(10) begin
+                repeat($urandom_range(5, 1)) @(posedge clk);
+                mem_op = $urandom;
             end
         end
     join

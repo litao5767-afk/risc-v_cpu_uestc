@@ -7,10 +7,8 @@
 // ============================================================================
 
 `timescale 1ns / 1ps
-
-module pc_counter #(
-    parameter DATA_WIDTH = 32
-)
+import my_pkg.sv::*;
+module pc_counter
 (
     input  wire                         clk        ,
     input  wire                         rst_n      ,
