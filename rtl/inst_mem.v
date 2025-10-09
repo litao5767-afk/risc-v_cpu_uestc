@@ -16,17 +16,20 @@ module inst_mem
     output reg  [DATA_WIDTH - 1 : 0]        inst   
 );
 
-    reg [7 : 0] mem [0 : 2**ADDR_WIDTH - 1];
+    wire addr_fault = (addr[1 : 0] != 2'b00) ? 'b1 : 'b0;
+    reg [7 : 0] mem [0 : MEM_DEPTH - 1];
 
     always@(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             inst <= '0;
         end
         else begin
-            inst[7 : 0]   <= mem[addr + 0];
-            inst[15 : 8]  <= mem[addr + 1];
-            inst[23 : 16] <= mem[addr + 2];
-            inst[31 : 24] <= mem[addr + 3];
+            if(addr_fault) begin
+                inst <= 'h0000_0013;    //NOP
+            end
+            else begin
+                inst <= {mem[addr + 3], mem[addr + 2], mem[addr + 1], mem[addr + 0]};
+            end
         end
     end
 endmodule

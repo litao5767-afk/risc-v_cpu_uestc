@@ -1,7 +1,8 @@
 package my_pkg;
     parameter DATA_WIDTH = 32;
-    parameter ADDR_WIDTH = 16;
-
+    parameter ADDR_WIDTH = 32;
+    parameter MEM_DATA_DEPTH  = 4096;
+    parameter MEM_INST_DEPTH  = 4096;
 
     parameter MEM_LB  = 'b000;
     parameter MEM_LH  = 'b001;

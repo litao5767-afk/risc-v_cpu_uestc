@@ -85,13 +85,13 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 
 | **指令** | **汇编格式** | **类型** | **opcode** | **funct3** | **操作** |
 |----------|--------------|----------|------------|------------|----------|
-| `beq`    | `beq rs1, rs2, offset` | B-type | `1100011` | `000` | if (rs1 == rs2) PC += offset×2 |
-| `bne`    | `bne rs1, rs2, offset` | B-type | `1100011` | `001` | if (rs1 != rs2) PC += offset×2 |
-| `blt`    | `blt rs1, rs2, offset` | B-type | `1100011` | `100` | if (rs1 < rs2) PC += offset×2 (有符号) |
-| `bge`    | `bge rs1, rs2, offset` | B-type | `1100011` | `101` | if (rs1 >= rs2) PC += offset×2 (有符号) |
-| `bltu`   | `bltu rs1, rs2, offset` | B-type | `1100011` | `110` | if (rs1 < rs2) PC += offset×2 (无符号) |
-| `bgeu`   | `bgeu rs1, rs2, offset` | B-type | `1100011` | `111` | if (rs1 >= rs2) PC += offset×2 (无符号) |
-| `jal`    | `jal rd, offset` | J-type | `1101111` | - | rd = PC+4; PC += offset×2 |
+| `beq`    | `beq rs1, rs2, offset` | B-type | `1100011` | `000` | if (rs1 == rs2) PC += offset |
+| `bne`    | `bne rs1, rs2, offset` | B-type | `1100011` | `001` | if (rs1 != rs2) PC += offset |
+| `blt`    | `blt rs1, rs2, offset` | B-type | `1100011` | `100` | if (rs1 < rs2) PC += offset (有符号) |
+| `bge`    | `bge rs1, rs2, offset` | B-type | `1100011` | `101` | if (rs1 >= rs2) PC += offset (有符号) |
+| `bltu`   | `bltu rs1, rs2, offset` | B-type | `1100011` | `110` | if (rs1 < rs2) PC += offset (无符号) |
+| `bgeu`   | `bgeu rs1, rs2, offset` | B-type | `1100011` | `111` | if (rs1 >= rs2) PC += offset (无符号) |
+| `jal`    | `jal rd, offset` | J-type | `1101111` | - | rd = PC+4; PC += offset |
 | `jalr`   | `jalr rd, offset(rs1)` | I-type | `1100111` | `000` | rd = PC+4; PC = rs1 + offset |
 
 ## 3.4 其他指令
@@ -193,5 +193,4 @@ Design a cpu core using risc-v instruction set. This project is a courese design
 |`0100`|xor|
 |`0101`|srl|
 |`1101`|sra|
-|`0110`|or|
 |`0111`|and|
