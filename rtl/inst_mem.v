@@ -17,7 +17,7 @@ module inst_mem
 );
 
     wire addr_fault = (addr[1 : 0] != 2'b00) ? 'b1 : 'b0;
-    reg [7 : 0] mem [0 : MEM_DEPTH - 1];
+    reg [7 : 0] mem [0 : MEM_INST_DEPTH - 1];
 
     always@(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
