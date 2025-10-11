@@ -20,43 +20,43 @@ assign const = 32'h00000004;
 always@(*)
 begin
     case(branch)
-        3'b000://����ת
+        3'b000://不跳转
         begin
             nextpc = pc + const;
         end
-        3'b100://beq ���ʱ��ת
+        3'b100://beq 相等时跳转
         begin
             if(!zero)
                 nextpc = pc + const;
             else
                 nextpc = pc + imm;
         end
-        3'b101://bne ����ʱ��ת
+        3'b101://bne 不等时跳转
         begin
             if(zero)
                 nextpc = pc + const;
             else
                 nextpc = pc + imm;
         end
-        3'b110://blt bltu С��ʱ��ת
+        3'b110://blt bltu 小于时跳转
         begin
             if(!less)
                 nextpc = pc + const;
             else
                 nextpc = pc + imm;
         end
-        3'b111://bge bgeu ����ʱ��ת
+        3'b111://bge bgeu 大于时跳转
         begin
             if(zero||less)
                 nextpc = pc + const;
             else
                 nextpc = pc + imm;
         end
-        3'b001://jal  ��������ת��pcĿ��
+        3'b001://jal  强制跳转至PC+IMM
         begin
             nextpc = pc + imm;
         end
-        3'b010://jalr ��������ת���Ĵ���Ŀ��
+        3'b010://jalr 强制跳转至RS+IMM
         begin
             nextpc = rs + imm;
         end

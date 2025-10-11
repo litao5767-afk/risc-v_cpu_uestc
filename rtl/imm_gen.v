@@ -17,23 +17,23 @@ module imm_gen
 
     always@(*) begin
         case(opcode)
-            //I类型
+            //I-Type
             'b0010011, 'b0000011, 'b1100111:begin
                 imm = {{20{inst[31]}}, inst[31 : 20]};
             end
-            //S类型
+            //S-Type
             'b0100011:begin
                 imm = {{20{inst[31]}}, inst[31 : 25], inst[11 : 7]};
             end
-            //B类型
+            //B-Type
             'b1100011:begin
                 imm = {{19{inst[31]}}, inst[31], inst[7], inst[30 : 25], inst[11 : 8], 1'b0};
             end
-            //U类型
+            //U-Type
             'b0110111, 'b0010111:begin
                 imm = {inst[31 : 12], 12'b0};
             end
-            //J类型
+            //J-Type
             'b1101111:begin
                 imm = {{11{inst[31]}}, inst[31], inst[19 : 12], inst[20], inst[30 : 21], 1'b0};
             end
