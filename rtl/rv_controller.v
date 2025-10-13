@@ -5,7 +5,7 @@
 // Description: 
 // - Instruction Decoder
 // ============================================================================
-import my_pkg.sv::*;
+import my_pkg::*;
 module rv_controller(
     input  wire [DATA_WIDTH - 1 : 0] inst        ,//指令码传入
     output reg                       mem_write   ,//Mem写使能
@@ -14,7 +14,6 @@ module rv_controller(
     output reg  [2 : 0]              mem_op      ,//Mem读写格式（字节数/是否进行符号扩展）
     output reg  [3 : 0]              alu_op      ,//ALU控制指令
     output reg  [2 : 0]              alu_src     ,//低1位表示操作数1选择rs1(0)/pc(1)，高2位表示操作数2选择rs2(00)/imm(01)/常数4(10)
-    output reg  [2 : 0]              imm_op      ,//立即数类型（对应top模块中的imm-gen部分）
     output reg  [2 : 0]              branch       //跳转类型
     );
 //intruction decode//
@@ -35,7 +34,6 @@ begin
             alu_src = 3'b00_0;
             reg_write = 1'b1;//需写回寄存器rd
             branch = 3'b000; //不跳转
-            imm_op = 3'b000; //不生成立即数
             mem_write = 1'b0;
             mem_op = 3'b000;  //无需操作存储器
             mem_to_reg = 1'b0;
@@ -70,7 +68,6 @@ begin
             alu_src = 3'b01_0;//rs1+imm
             reg_write = 1'b0;
             branch = 3'b000;
-            imm_op = 3'b001;  //immi
             mem_write = 1'b0;
             mem_to_reg = 1'b1;
             case(funct3)
@@ -93,7 +90,6 @@ begin
             alu_src = 3'b01_0;//rs1+imm
             reg_write = 1'b1;//需写回寄存器rd
             branch = 3'b000; //不跳转
-            imm_op = 3'b001; //immi
             mem_write = 1'b0;
             mem_op = 3'b000;  //无需操作存储器
             mem_to_reg = 1'b0;
@@ -124,7 +120,6 @@ begin
             //有一种备选方案是alu做slt运算输出标志位（这样可以与无符号数条件跳转指令统一起来）
             alu_src = 3'b00_0;
             reg_write = 1'b0;//无需写回寄存器
-            imm_op = 3'b100; //immb
             mem_write = 1'b0;
             mem_op = 3'b000;  //无需操作存储器
             mem_to_reg = 1'b0;
@@ -173,7 +168,6 @@ begin
             alu_src = 3'b10_1;//pc+4
             reg_write = 1'b1;
             branch = 3'b001;//无条件跳转至pc目标
-            imm_op = 3'b101;//immj
             mem_write = 1'b0;
             mem_op = 3'b000;  //无需操作存储器
             mem_to_reg = 1'b0;
@@ -185,7 +179,6 @@ begin
             alu_src = 3'b10_1;
             reg_write = 1'b1;
             branch = 3'b010;//无条件跳转至寄存器目标
-            imm_op = 3'b001;//immi
             mem_write = 1'b0;
             mem_op = 3'b000;  //无需操作存储器
             mem_to_reg = 1'b0;
@@ -196,7 +189,6 @@ begin
             alu_src = 3'b01_0;//rs1+imm
             reg_write = 1'b0;
             branch = 3'b000;
-            imm_op = 3'b011;  //imms
             mem_write = 1'b1;
             mem_to_reg = 1'b0;
             case(funct3)
@@ -216,7 +208,6 @@ begin
             alu_src = 3'b01_0;//仅使用立即数
             reg_write = 1'b1;
             branch = 3'b000;
-            imm_op = 3'b010;  //immu
             mem_write = 1'b0;
             mem_op = 3'b000;  //无需操作存储器
             mem_to_reg = 1'b0;
@@ -227,7 +218,6 @@ begin
             alu_src = 3'b01_1;//pc+imm
             reg_write = 1'b1;
             branch = 3'b000;
-            imm_op = 3'b010;  //immu
             mem_write = 1'b0;
             mem_op = 3'b000;  //无需操作存储器
             mem_to_reg = 1'b0;
@@ -238,7 +228,6 @@ begin
             alu_src = 3'b00_0;
             reg_write = 1'b0;
             branch = 3'b000;
-            imm_op = 3'b000;  //不产生立即数
             mem_write = 1'b0;
             mem_op = 3'b000;  //无需操作存储器
             mem_to_reg = 1'b0;

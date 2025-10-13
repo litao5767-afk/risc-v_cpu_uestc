@@ -1,16 +1,18 @@
-module riscv_alu (
-    input  [31:0] a,          // 操作数A
-    input  [31:0] b,          // 操作数B
-    input  [3:0]  alu_op, // ALU控制信号
-    output reg [31:0] result,  // 运算结果
-    output zero,               // 零标志
-    output less               // 比较标志
+`timescale 1ns / 1ps
+import my_pkg::*;
+module alu (
+    input  wire [DATA_WIDTH - 1 : 0]    a       ,           // 操作数A
+    input  wire [DATA_WIDTH - 1 : 0]    b       ,           // 操作数B
+    input  wire [3 : 0]                 alu_op  ,           // ALU控制信号
+    output reg  [DATA_WIDTH - 1 : 0]    result  ,           // 运算结果
+    output wire                         zero    ,           // 零标志
+    output wire                         less                // 小于标志
 );
 
 // ALU控制信号定义
 localparam [3:0] 
     ALU_ADD  = 4'b0000,  // 加法
-    ALU_SUB  = 4'1b000,  // 减法
+    ALU_SUB  = 4'b1000,  // 减法
     ALU_SLL  = 4'b0001,  // 逻辑左移
     ALU_SLT  = 4'b0010,  // 算术小于
     ALU_SLTU = 4'b1010,  // 逻辑小于

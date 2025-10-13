@@ -60,7 +60,7 @@ module data_mem
                     mem[addr + 0] <= data_wr[7 : 0];
                 end
                 MEM_SH:begin
-                    {mem[addr + 1], mem[addr]} <= data_wr[15:0];
+                    {mem[addr + 1], mem[addr]} <= data_wr[15 : 0];
                 end
                 MEM_SW:begin
                     {mem[addr + 3], mem[addr + 2], mem[addr + 1], mem[addr]} <= data_wr;

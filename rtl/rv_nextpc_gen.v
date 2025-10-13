@@ -5,50 +5,50 @@
 // Description: 
 // - NextPC Generator(Dedicated Adder)
 // ============================================================================
-import my_pkg.sv::*;
+import my_pkg::*;
 module rv_nextpc_gen(
     input  wire                      zero       ,
     input  wire                      less       ,
     input  wire [2 : 0]              branch     ,
-    input  wire [DATA_WIDTH - 1 : 0] pc         ,
+    input  wire [ADDR_WIDTH - 1 : 0] pc         ,
     input  wire [DATA_WIDTH - 1 : 0] rs         ,
     input  wire [DATA_WIDTH - 1 : 0] imm        ,
-    output reg  [DATA_WIDTH - 1 : 0] nextpc
+    output reg  [ADDR_WIDTH - 1 : 0] nextpc
     );
-wire const;
-assign const = 32'h00000004;
+
+wire [DATA_WIDTH - 1 : 0] pc_fixed_add = 32'h0000_0004;
 always@(*)
 begin
     case(branch)
         3'b000://不跳转
         begin
-            nextpc = pc + const;
+            nextpc = pc + pc_fixed_add;
         end
         3'b100://beq 相等时跳转
         begin
             if(!zero)
-                nextpc = pc + const;
+                nextpc = pc + pc_fixed_add;
             else
                 nextpc = pc + imm;
         end
         3'b101://bne 不等时跳转
         begin
             if(zero)
-                nextpc = pc + const;
+                nextpc = pc + pc_fixed_add;
             else
                 nextpc = pc + imm;
         end
         3'b110://blt bltu 小于时跳转
         begin
             if(!less)
-                nextpc = pc + const;
+                nextpc = pc + pc_fixed_add;
             else
                 nextpc = pc + imm;
         end
         3'b111://bge bgeu 大于时跳转
         begin
             if(zero||less)
-                nextpc = pc + const;
+                nextpc = pc + pc_fixed_add;
             else
                 nextpc = pc + imm;
         end
@@ -62,7 +62,7 @@ begin
         end
         default:
         begin
-            nextpc = pc + const;
+            nextpc = pc + pc_fixed_add;
         end
     endcase
 end

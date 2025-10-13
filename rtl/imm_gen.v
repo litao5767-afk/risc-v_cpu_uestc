@@ -7,7 +7,7 @@
 // ============================================================================
 
 `timescale 1ns / 1ps
-import my_pkg.sv::*;
+import my_pkg::*;
 module imm_gen
 (
     input  wire [DATA_WIDTH - 1 : 0] inst,
@@ -17,23 +17,23 @@ module imm_gen
 
     always@(*) begin
         case(opcode)
-            //I-Type
+            //I类型
             'b0010011, 'b0000011, 'b1100111:begin
                 imm = {{20{inst[31]}}, inst[31 : 20]};
             end
-            //S-Type
+            //S类型
             'b0100011:begin
                 imm = {{20{inst[31]}}, inst[31 : 25], inst[11 : 7]};
             end
-            //B-Type
+            //B类型
             'b1100011:begin
                 imm = {{19{inst[31]}}, inst[31], inst[7], inst[30 : 25], inst[11 : 8], 1'b0};
             end
-            //U-Type
+            //U类型
             'b0110111, 'b0010111:begin
                 imm = {inst[31 : 12], 12'b0};
             end
-            //J-Type
+            //J类型
             'b1101111:begin
                 imm = {{11{inst[31]}}, inst[31], inst[19 : 12], inst[20], inst[30 : 21], 1'b0};
             end

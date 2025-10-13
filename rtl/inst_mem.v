@@ -7,7 +7,7 @@
 // ============================================================================
 
 `timescale 1ns / 1ps
-import my_pkg.sv::*;
+import my_pkg::*;
 module inst_mem
 (
     input  wire                             clk    ,

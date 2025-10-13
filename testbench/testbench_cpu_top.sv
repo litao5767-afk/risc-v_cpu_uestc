@@ -33,11 +33,11 @@ parameter rst_time = 5;
 parameter rst_time_delete = 10;
 parameter finish_time = 1000001;
 
-logic wire;
-logic wire;
+logic clk  ;
+logic rst_n;
 cpu_top dut(
-	.clk    (clk    ),
-	.rst_n  (rst_n  ),
+	.clk  (clk  ),
+	.rst_n(rst_n)
 );
 
 initial begin   //clock
