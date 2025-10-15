@@ -9,19 +9,6 @@ module alu (
     output wire                         less                // 小于标志
 );
 
-// ALU控制信号定义
-localparam [3:0] 
-    ALU_ADD  = 4'b0000,  // 加法
-    ALU_SUB  = 4'b1000,  // 减法
-    ALU_SLL  = 4'b0001,  // 逻辑左移
-    ALU_SLT  = 4'b0010,  // 算术小于
-    ALU_SLTU = 4'b1010,  // 逻辑小于
-    ALU_XOR  = 4'b0100,  // 异或
-    ALU_SRL  = 4'b0101,  // 逻辑右移
-    ALU_SRA  = 4'b1101,  // 算术右移
-    ALU_OR   = 4'b0110,  // 或
-    ALU_AND  = 4'b0111;  // 与
-
 // 内部信号
 wire [31:0] add_sub_result;   // 加减法结果
 wire [32:0] add_sub_ext;      // 扩展位用于比较
@@ -51,7 +38,7 @@ assign slt_result = (a[31] != b[31]) ?
 
 // 逻辑小于(SLTU) - 无符号比较  
 // 使用统一减法单元的借位标志
-assign sltu_result = ~add_sub_ext[32];  // 借位标志取反
+assign sltu_result = add_sub_ext[32];  // 借位标志取反
 
 // 比较标志输出
 assign less = is_compare ? 

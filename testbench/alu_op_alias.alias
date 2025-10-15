@@ -1,0 +1,12 @@
+alias	alias_tab_1
+  ADD     4'b0000    NULL
+  SLL     4'b0001    NULL
+  SLT     4'b0010    NULL
+  XOR     4'b0100    NULL
+  SRL     4'b0101    NULL
+  OR      4'b0110    NULL
+  AND     4'b0111    NULL
+  SUB     4'b1000    NULL
+  SLTU    4'b1010    NULL
+  SRA     4'b1101    NULL
+endalias
