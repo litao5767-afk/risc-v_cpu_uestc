@@ -5,3 +5,4 @@
 !/testbench/**
 !.gitignore
 !README.md
+testbench/test_compiled/

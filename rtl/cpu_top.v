@@ -17,7 +17,7 @@ module cpu_top
     wire [ADDR_WIDTH - 1 : 0]   pc_current;
     wire [ADDR_WIDTH - 1 : 0]   nextpc;
     
-    pc_counter u_pc_counter(
+    pc_reg u_pc_reg(
         .clk        (clk        ),
         .rst_n      (rst_n      ),
         .pc_next    (nextpc     ),
@@ -95,8 +95,7 @@ module cpu_top
         .zero   (zero       ),
         .less   (less       )
     );
-
-    wire [2 : 0] branch;
+    
     rv_nextpc_gen u_rv_nextpc_gen(
         .zero   (zero       ),
         .less   (less       ),
@@ -112,7 +111,6 @@ module cpu_top
         .clk    (clk        ),
         .rst_n  (rst_n      ),
         .wr_en  (mem_write  ),
-        .rd_en  (mem_to_reg ),
         .mem_op (mem_op     ),
         .addr   (alu_result ),
         .data_wr(data_rd2   ),

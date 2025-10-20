@@ -16,54 +16,24 @@ module rv_nextpc_gen(
     output reg  [ADDR_WIDTH - 1 : 0] nextpc
     );
 
-wire [DATA_WIDTH - 1 : 0] pc_fixed_add = 32'h0000_0004;
-always@(*)
-begin
-    case(branch)
-        3'b000://不跳转
-        begin
-            nextpc = pc + pc_fixed_add;
-        end
-        3'b100://beq 相等时跳转
-        begin
-            if(!zero)
-                nextpc = pc + pc_fixed_add;
-            else
+    always @(*) begin
+        case(branch)
+            BR_NONE: // 不跳转
+                nextpc = pc + 4;
+            BR_BEQ: // beq 相等时跳转
+                nextpc = (zero) ? (pc + imm) : (pc + 4);
+            BR_BNE: // bne 不等时跳转
+                nextpc = (zero) ? (pc + 4) : (pc + imm);
+            BR_BLT: // blt/bltu 小于时跳转
+                nextpc = (less) ? (pc + imm) : (pc + 4);
+            BR_BGE: // bge/bgeu 大于或等于时跳转
+                nextpc = (!less) ? (pc + imm) : (pc + 4);
+            BR_JAL: // jal  强制跳转至 PC+IMM
                 nextpc = pc + imm;
-        end
-        3'b101://bne 不等时跳转
-        begin
-            if(zero)
-                nextpc = pc + pc_fixed_add;
-            else
-                nextpc = pc + imm;
-        end
-        3'b110://blt bltu 小于时跳转
-        begin
-            if(!less)
-                nextpc = pc + pc_fixed_add;
-            else
-                nextpc = pc + imm;
-        end
-        3'b111://bge bgeu 大于时跳转
-        begin
-            if(zero||less)
-                nextpc = pc + pc_fixed_add;
-            else
-                nextpc = pc + imm;
-        end
-        3'b001://jal  强制跳转至PC+IMM
-        begin
-            nextpc = pc + imm;
-        end
-        3'b010://jalr 强制跳转至RS+IMM
-        begin
-            nextpc = rs + imm;
-        end
-        default:
-        begin
-            nextpc = pc + pc_fixed_add;
-        end
-    endcase
-end
+            BR_JALR: // jalr 强制跳转至 RS+IMM，且最低位强制为0
+                nextpc = (rs + imm) & {{(ADDR_WIDTH-1){1'b1}}, 1'b0};
+            default:
+                nextpc = pc + 4;
+        endcase
+    end
 endmodule

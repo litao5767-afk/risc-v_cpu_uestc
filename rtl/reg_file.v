@@ -21,20 +21,21 @@ module reg_file
     output wire [DATA_WIDTH - 1 : 0]     data_rd2   
 );
 
-/****************************register****************************/
 reg [DATA_WIDTH - 1 : 0] r_reg_file [0 : 31]    ;
 
-/****************************comb_assign****************************/
-assign data_rd1 = r_reg_file[addr_rd1];
-assign data_rd2 = r_reg_file[addr_rd2];
+// read port with write-forwarding and proper zero width
+assign data_rd1 = (wr_en && (addr_wr != 5'b0) && (addr_wr == addr_rd1)) ? data_wr :
+                  (addr_rd1 != 5'b0) ? r_reg_file[addr_rd1] : {DATA_WIDTH{1'b0}};
 
-/****************************process****************************/
+assign data_rd2 = (wr_en && (addr_wr != 5'b0) && (addr_wr == addr_rd2)) ? data_wr :
+                  (addr_rd2 != 5'b0) ? r_reg_file[addr_rd2] : {DATA_WIDTH{1'b0}};
+
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         for(int i = 0 ; i <= 31 ; i ++) begin
             r_reg_file[i] <= '0;
         end
-    end 
+    end
     else begin
         if((wr_en) && (addr_wr != 'b0)) begin
             r_reg_file[addr_wr] <= data_wr;

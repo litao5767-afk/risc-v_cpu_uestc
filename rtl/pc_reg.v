@@ -8,12 +8,12 @@
 
 `timescale 1ns / 1ps
 import my_pkg::*;
-module pc_counter
+module pc_reg
 (
     input  wire                         clk        ,
     input  wire                         rst_n      ,
-    input  wire [DATA_WIDTH - 1 : 0]    pc_next    ,
-    output reg  [DATA_WIDTH - 1 : 0]    pc_current 
+    input  wire [ADDR_WIDTH - 1 : 0]    pc_next    ,
+    output reg  [ADDR_WIDTH - 1 : 0]    pc_current 
 );
 
 always@(posedge clk or negedge rst_n) begin
