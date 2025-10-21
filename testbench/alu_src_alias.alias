@@ -1,0 +1,6 @@
+alias	alias_tab_alu_src
+  RS1_RS2  3'b000  NULL
+  RS1_IMM  3'b010  NULL
+  PC_IMM   3'b011  NULL
+  PC_4     3'b101  NULL
+endalias

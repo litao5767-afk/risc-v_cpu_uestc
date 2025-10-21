@@ -15,7 +15,7 @@ end
 
 parameter vcd_start = 100000;
 parameter vcd_hold = 100;
-parameter IMEM_INIT_FILE = "testbench/test_compiled/rv32ui-p-add.mem"; // 指令存储器的初始化文件路径
+parameter IMEM_INIT_FILE = "testbench/test_compiled_new/rv32ui-p-add.mem"; // 指令存储器的初始化文件路径
 initial begin
     `ifdef VCD_ON
         #vcd_start;
@@ -58,6 +58,6 @@ initial begin       //finish
 end
 
 initial begin
-    $readmemh(IMEM_INIT_FILE, dut.u_cpu_top.u_inst_mem.mem);
+    $readmemh(IMEM_INIT_FILE, u_cpu_top.u_inst_mem.mem);
 end
 endmodule

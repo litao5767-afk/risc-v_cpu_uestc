@@ -1,0 +1,9 @@
+alias	alias_tab_branch
+  NONE   3'b000  NULL
+  JAL    3'b001  NULL
+  JALR   3'b010  NULL
+  BEQ    3'b100  NULL
+  BNE    3'b101  NULL
+  BLT    3'b110  NULL
+  BGE    3'b111  NULL
+endalias

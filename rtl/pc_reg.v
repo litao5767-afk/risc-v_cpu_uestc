@@ -18,7 +18,7 @@ module pc_reg
 
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-        pc_current <= 'h0000_1000;
+        pc_current <= {ADDR_WIDTH{1'b0}};
     end 
     else begin
         pc_current <= pc_next;

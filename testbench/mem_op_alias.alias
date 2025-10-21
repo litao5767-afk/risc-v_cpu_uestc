@@ -1,0 +1,10 @@
+alias	alias_tab_mem_op
+  LB   3'b000  NULL
+  LH   3'b001  NULL
+  LW   3'b010  NULL
+  LBU  3'b011  NULL
+  LHU  3'b100  NULL
+  SB   3'b101  NULL
+  SH   3'b110  NULL
+  SW   3'b111  NULL
+endalias

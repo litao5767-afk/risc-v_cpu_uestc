@@ -5,4 +5,5 @@
 !/testbench/**
 !.gitignore
 !README.md
-testbench/test_compiled/
+testbench/test_compiled_new/
+testbench/test_compiled_old/

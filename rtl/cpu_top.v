@@ -36,7 +36,6 @@ module cpu_top
     wire [DATA_WIDTH - 1 : 0] data_rd1;
     wire [DATA_WIDTH - 1 : 0] data_rd2;
     wire [DATA_WIDTH - 1 : 0] data_wr_back;
-    wire [4 : 0] addr_wr_back;
     reg_file u_reg_file(
         .clk      (clk          ),
         .rst_n    (rst_n        ),
