@@ -26,8 +26,6 @@ module cpu_top
 
     wire [DATA_WIDTH - 1 : 0] inst;
     inst_mem u_inst_mem(
-        .clk   (clk         ),
-        .rst_n (rst_n       ),
         .addr  (pc_current  ),
         .inst  (inst        )
     );

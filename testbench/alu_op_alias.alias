@@ -9,4 +9,5 @@ alias	alias_tab_1
   SUB     4'b1000    NULL
   SLTU    4'b1010    NULL
   SRA     4'b1101    NULL
+  LUI     4'b0011    NULL
 endalias

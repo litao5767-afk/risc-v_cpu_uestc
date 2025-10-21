@@ -10,8 +10,6 @@
 import my_pkg::*;
 module inst_mem
 (
-    input  wire                             clk    ,
-    input  wire                             rst_n  ,
     input  wire [ADDR_WIDTH - 1 : 0]        addr   ,
     output wire [DATA_WIDTH - 1 : 0]        inst   
 );
