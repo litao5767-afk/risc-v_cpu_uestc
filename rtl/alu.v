@@ -24,7 +24,6 @@ wire is_sltu = (alu_op == ALU_SLTU);
 wire is_compare = is_slt | is_sltu;
 
 // 统一的加减法单元 - 处理ADD、SUB和比较操作
-
 wire do_subtract = (alu_op == ALU_SUB) | is_compare;
 // 使用带进位的加法来获得可靠的进位/借位信息：
 // 当做减法时，使用 A + (~B) + 1，这样 add_sub_ext[DATA_WIDTH] 为 carry_out
@@ -42,13 +41,13 @@ assign slt_result = (a[DATA_WIDTH-1] != b[DATA_WIDTH-1]) ?
                    add_sub_result[DATA_WIDTH-1];
 
 // 逻辑小于(SLTU) - 无符号比较
-// 使用减法产生的 carry_out：当 a<b 时会产生 borrow，carry_out==0，因此取反得到 sltu
-assign sltu_result = ~add_sub_ext[DATA_WIDTH];
+// 直接使用无符号比较表达更清晰且综合友好
+assign sltu_result = (a < b);
 
 // 比较标志输出
-assign less = is_compare ? 
-             (is_slt ? slt_result : sltu_result) : 
-             1'b0;
+assign less = is_slt ? slt_result :
+              is_sltu ? sltu_result :
+              1'b0;
 
 // 移位单元
 assign sll_result = a << b[SHAMT_BITS-1:0];
@@ -64,7 +63,7 @@ always @(*) begin
         ALU_SLT:  result = {{(DATA_WIDTH-1){1'b0}}, slt_result};
         ALU_SLTU: result = {{(DATA_WIDTH-1){1'b0}}, sltu_result};
         ALU_XOR:  result = a ^ b;
-    ALU_LUI:  result = b; // LUI: upper immediate already provided on operand b
+        ALU_LUI:  result = b; // LUI: upper immediate already provided on operand b
         ALU_SRL:  result = srl_result;
         ALU_SRA:  result = sra_result;
         ALU_OR:   result = a | b;

@@ -24,5 +24,5 @@ module alu_src_sel
     // data2 selects rs2 / imm / constant 4 (constant width should match DATA_WIDTH)
     assign data2 = (alu_src[2 : 1] == 2'b00) ? rs2 :
                    (alu_src[2 : 1] == 2'b01) ? imm :
-                   { { (DATA_WIDTH-2){1'b0} }, 2'b10 }; // 4
+                   { { (DATA_WIDTH-3){1'b0} }, 3'b100}; // 4
 endmodule
