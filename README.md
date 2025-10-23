@@ -1,6 +1,6 @@
 # risc-v_cpu_uestc
 
-本仓库实现了一个基于 RISC‑V RV32I 指令集的教学 CPU 核，作为电子与计算工程课程设计（UESTC）。
+本仓库实现了一个基于 RISC‑V RV32I 指令集的教学 CPU 核，作为课程设计（UESTC）。
 
 ## 参数
 
@@ -8,6 +8,8 @@
 |---:|:---:|:---|
 | `DATA_WIDTH` | `32` | 数据位宽（位） |
 | `ADDR_WIDTH` | `32` | 地址位宽（位） |
+| `MEM_DATA_DEPTH` | `4096` | 数据存储器深度 |
+| `MEM_INST_DEPTH` | `4096` | 指令存储器深度 |
 
 ## 通用接口
 
@@ -71,7 +73,7 @@ $$imm = \{\{12\{inst[31]\}\}, inst[19:12], inst[20], inst[30:21], 1'b0 \}$$
 ---
 
 
-# 仓库关键模块（概要）
+# 关键模块
 
 以下为仓库中典型模块的功能简述与端口信号表（按源码定义）。表中位宽使用 `DATA_WIDTH` / `ADDR_WIDTH` 等参数名以便对应源码。
 
@@ -244,20 +246,19 @@ $$imm = \{\{12\{inst[31]\}\}, inst[19:12], inst[20], inst[30:21], 1'b0 \}$$
 
 ---
 
-# 使用与仿真（简要）
+# 使用与仿真
 
 - 仿真与综合命令依赖你的本地工具链（例如 Synopsys VCS、ModelSim/Questa、Icarus Verilog 等）。
-- 项目中有 Makefile 与 `dmk` 脚本（若项目作者提供），通常可以使用：
+- 项目中有 Makefile ，通常可以使用：
 
 ```bash
 # 在工程根目录
 dmk vcs
-make sim
 ```
 
-请根据你的仿真许可和环境调整命令。
+请根据你的仿真环境调整命令。
 
 ---
 
-# 参考
+# 参考文档
 - RISC‑V 官方文档（基础整数指令集、用户级架构）： https://riscv.org/specifications/ 

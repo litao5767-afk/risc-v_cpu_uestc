@@ -56,9 +56,9 @@ initial begin       //finish
     $finish;
 end
 
-string IMEM_INIT_FILE = "testbench/test_compiled_no_ldst/rv32ui-p-xori.mem"; // 指令存储器的初始化文件路径
+string IMEM_INIT_FILE = "testbench/test_compiled_no_ldst/rv32ui-p-add-inst.mem"; // 指令存储器的初始化文件路径
 initial begin
-    $readmemh(IMEM_INIT_FILE, u_cpu_top.u_inst_mem.mem);
+    $readmemh(IMEM_INIT_FILE, u_cpu_top.u_inst_mem_s1.mem);
 end
 
 // Monitor task: wait until we observe a transition from last_inst -> pass_addr
@@ -71,11 +71,11 @@ task automatic monitor_pass(
     int unsigned max_cycles_local = 2000;
     int unsigned cycles_local = 0;
     logic [31:0] prev_pc, curr_pc;
-    prev_pc = u_cpu_top.pc_current;
+    prev_pc = u_cpu_top.pc_current_s1;
     while (cycles_local < max_cycles_local) begin
         @(posedge clk);
         cycles_local++;
-        curr_pc = u_cpu_top.pc_current;
+        curr_pc = u_cpu_top.pc_current_s1;
         if (last_pc >= 0) begin
             if ((curr_pc == pass_addr) && (prev_pc == last_pc)) begin
                 $display("Test %s passed after %0d cycles.", testname, cycles_local);
