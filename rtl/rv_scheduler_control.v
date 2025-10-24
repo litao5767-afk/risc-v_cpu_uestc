@@ -7,54 +7,70 @@
 // ============================================================================
 import my_pkg::*;
 module rv_scheduler_control(
-    input  wire [4:0]  rs1D,rs2D,rs1E,rs2E,data_rdM,data_rdW//���뼶��ִ�м���Դ�Ĵ���1,2,�洢������Ŀ��Ĵ���,д�ؼ���Ŀ��Ĵ���
-    input  wire        mem_to_regM,//�洢��������Memд��Reg
-    input  wire        reg_writeW,//д�ؼ�����ALUд��Reg
-    input  wire        br_taken,//��֧Ԥ����
-    output reg  [1:0]  forward_rs1E,forward_rs2E,//ִ�м��ض��򿪹�
-    output reg         stallF,stallD,flushD,flushE//ȡָ�������뼶������ָ����뼶��ִ�м������ָ��
+    input  wire [4:0]  rs1E          , // 译码级、执行级、访存级、写回级的源/目的寄存器地址
+    input  wire [4:0]  rs2E          ,
+    input  wire [4:0]  rdM           ,
+    input  wire [4:0]  rdW           ,
+    input  wire        reg_writeM    ,
+    input  wire        reg_writeW    ,
+    input  wire        mem_to_regM   ,
+    input  wire        br_taken      , // 分支预测失败
+    output reg  [1:0]  forward_rs1E  , // 执行级数据前推控制信号
+    output reg  [1:0]  forward_rs2E  ,
+    output reg         stallF        , // 取指、译码级暂停信号
+    output reg         stallD        ,
+    output reg         flushD        , // 译码、执行级冲刷信号
+    output reg         flushE
     );
-//�˿��ź����Խ�β��д��ĸ��ʾ��������ˮ����F-Fetch, D-Decode, E-Execute, M-Memory, W-Writeback
+// 端口信号的后缀字母表示其所在的流水线阶段：F-Fetch, D-Decode, E-Execute, M-Memory, W-Writeback
+
 always@(*)
 begin
-    //MEM and WB Forwarding EX
-    if(rs1E != 5'b0 && rs1E == data_rdM && mem_to_regM)//���Զ�x0�Ĳ���/alu��ȡ��Դ�Ĵ����ʹ洢���������ļĴ�����ͬ/�洢����Ҫ����
-        forward_rs1E = 2'b11;
-    else if(rs1E != 5'b0 && rs1E == data_rdW && reg_writeW)//alu��ȡ��Դ�Ĵ�����д�ؼ������ļĴ�����ͬ
-        forward_rs1E = 2'b10;
-    else
-        forward_rs1E = 2'b00;
+    // 默认值
+    forward_rs1E = 2'b00;
+    forward_rs2E = 2'b00;
+    stallF       = 1'b0;
+    stallD       = 1'b0;
+    flushD       = 1'b0;
+    flushE       = 1'b0;
 
-    if(rs2E != 5'b0 && rs2E == data_rdM && mem_to_regM)
-        forward_rs2E = 2'b11;
-    else if(rs2E != 5'b0 && rs2E == data_rdW && reg_writeW)
-        forward_rs2E = 2'b10;
-    else
-        forward_rs2E = 2'b00;
+    // --- 数据冒险：为执行阶段（EX）提供数据前推 ---
+    // 优先级: MEM -> WB （去除 EX->EX 前推以避免组合环）
 
-    //MEM Stalling DECODE and FETCH (read after load)
-    if(( (data_rdM == rs1D) or (data_rdM == rs2D) ) && mem_to_regM)
+    // MEM -> EX forwarding for rs1
+    if (reg_writeM && (rdM != 5'b0) && (rdM == rs1E)) begin
+        forward_rs1E = 2'b10; // 从访存阶段前推
+    end
+    // WB -> EX forwarding for rs1
+    else if (reg_writeW && (rdW != 5'b0) && (rdW == rs1E)) begin
+        forward_rs1E = 2'b01; // 从写回阶段前推
+    end
+
+    // MEM -> EX forwarding for rs2
+    if (reg_writeM && (rdM != 5'b0) && (rdM == rs2E)) begin
+        forward_rs2E = 2'b10; // 从访存阶段前推
+    end
+    // WB -> EX forwarding for rs2
+    else if (reg_writeW && (rdW != 5'b0) && (rdW == rs2E)) begin
+        forward_rs2E = 2'b01; // 从写回阶段前推
+    end
+
+    // --- 控制冒险和结构冒险 ---
+    // 优先级: 分支预测失败 > 加载-使用冒险
+
+    // 控制冒险：分支预测失败
+    if (br_taken)
     begin
-        stallF = 1'b1;
+        flushD = 1'b1; // 冲刷IF/ID流水线寄存器
+        flushE = 1'b1; // 冲刷ID/EX流水线寄存器
+    end
+    // 结构冒险：加载-使用冒险 (Load-Use Hazard)
+    // 如果访存阶段是load指令，并且其目标寄存器是译码阶段指令的源寄存器
+    else if (mem_to_regM && (rdM != 5'b0) && ((rdM == rs1E) || (rdM == rs2E)))
+    begin
+        stallF = 1'b1; // 暂停PC和IF/ID寄存器
         stallD = 1'b1;
-        flushE = 1'b1;
-    end
-    else
-    begin
-        stallF = 1'b0;
-        stallD = 1'b0;
-        flushE = 1'b0;
-    end
-
-    //FETCH and EX Refreshing (wrong prediction)
-    if(br_taken)
-    begin
-        flushD = 1'b1;
-        flushE = 1'b1;
-    end
-    else begin
-        flushD = 1'b0;
-        flushE = 1'b0;
+        flushE = 1'b1; // 将ID/EX寄存器中的指令转换成nop
     end
 end
 endmodule
