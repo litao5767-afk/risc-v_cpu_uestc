@@ -7,48 +7,54 @@
 // ============================================================================
 import my_pkg::*;
 module rv_scheduler_control(
-    input  wire [4:0]  decode_rs1,decode_rs2,ex_rs1,ex_rs2,wr_back_rd,mem_rd//ÒëÂë¼¶ºÍÖ´ÐÐ¼¶µÄÔ´¼Ä´æÆ÷1,2,Ð´»Ø¼¶µÄÄ¿±ê¼Ä´æÆ÷,´æ´¢Æ÷¼¶µÄÄ¿±ê¼Ä´æÆ÷
-    input  wire [4:0]  opcode,//inst[6:2]¼ì²âÖ¸ÁîÀàÐÍ
-    input  wire        mem_to_reg,//´ÓMemÐ´»ØReg
-    input  wire        reg_write,//´ÓALUÐ´»ØReg
-    output reg  [1:0]  forward_ex_rs1,forward_ex_rs2,//ÖØ¶¨Ïò¿ª¹Ø
-    output reg         stall_fetch,stall_decode,flush_ex//È¡Ö¸¼¶ºÍÒëÂë¼¶µÄ×èÈûÖ¸Áî£¬Ö´ÐÐ¼¶µÄÇå³ýÖ¸Áî
+    input  wire [4:0]  rs1D,rs2D,rs1E,rs2E,data_rdM,data_rdW//ï¿½ï¿½ï¿½ë¼¶ï¿½ï¿½Ö´ï¿½Ð¼ï¿½ï¿½ï¿½Ô´ï¿½Ä´ï¿½ï¿½ï¿½1,2,ï¿½æ´¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½Ä´ï¿½ï¿½ï¿½,Ð´ï¿½Ø¼ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½Ä´ï¿½ï¿½ï¿½
+    input  wire        mem_to_regM,//ï¿½æ´¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½MemÐ´ï¿½ï¿½Reg
+    input  wire        reg_writeW,//Ð´ï¿½Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ALUÐ´ï¿½ï¿½Reg
+    input  wire        br_taken,//ï¿½ï¿½Ö§Ô¤ï¿½ï¿½ï¿½ï¿½
+    output reg  [1:0]  forward_rs1E,forward_rs2E,//Ö´ï¿½Ð¼ï¿½ï¿½Ø¶ï¿½ï¿½ò¿ª¹ï¿½
+    output reg         stallF,stallD,flushD,flushE//È¡Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë¼¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½î£¬ï¿½ï¿½ï¿½ë¼¶ï¿½ï¿½Ö´ï¿½Ð¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
     );
+//ï¿½Ë¿ï¿½ï¿½Åºï¿½ï¿½ï¿½ï¿½Ô½ï¿½Î²ï¿½ï¿½Ð´ï¿½ï¿½Ä¸ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë®ï¿½ï¿½ï¿½ï¿½F-Fetch, D-Decode, E-Execute, M-Memory, W-Writeback
 always@(*)
 begin
     //MEM and WB Forwarding EX
-    if(ex_rs1 != 5'b0 && ex_rs1 == mem_rd && mem_to_reg)//ºöÂÔ¶Ôx0µÄ²Ù×÷/aluËùÈ¡µÄÔ´¼Ä´æÆ÷ºÍ´æ´¢Æ÷¼¶¶Á³öµÄ¼Ä´æÆ÷ÏàÍ¬/´æ´¢Æ÷ÐèÒª¶Á³ö
-        forward_ex_rs1 = 2'b11;
-    else if(ex_rs1 != 5'b0 && ex_rs1 == wr_back_rd && reg_write)//aluËùÈ¡µÄÔ´¼Ä´æÆ÷ºÍÐ´»Ø¼¶²Ù×÷µÄ¼Ä´æÆ÷ÏàÍ¬
-        forward_ex_rs1 = 2'b10;
+    if(rs1E != 5'b0 && rs1E == data_rdM && mem_to_regM)//ï¿½ï¿½ï¿½Ô¶ï¿½x0ï¿½Ä²ï¿½ï¿½ï¿½/aluï¿½ï¿½È¡ï¿½ï¿½Ô´ï¿½Ä´ï¿½ï¿½ï¿½ï¿½Í´æ´¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Í¬/ï¿½æ´¢ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½
+        forward_rs1E = 2'b11;
+    else if(rs1E != 5'b0 && rs1E == data_rdW && reg_writeW)//aluï¿½ï¿½È¡ï¿½ï¿½Ô´ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Í¬
+        forward_rs1E = 2'b10;
     else
-        forward_ex_rs1 = 2'b00;
+        forward_rs1E = 2'b00;
 
-    if(ex_rs2 != 5'b0 && ex_rs2 == mem_rd && mem_to_reg)
-        forward_ex_rs2 = 2'b11;
-    else if(ex_rs2 != 5'b0 && ex_rs2 == wr_back_rd && reg_write)
-        forward_ex_rs2 = 2'b10;
+    if(rs2E != 5'b0 && rs2E == data_rdM && mem_to_regM)
+        forward_rs2E = 2'b11;
+    else if(rs2E != 5'b0 && rs2E == data_rdW && reg_writeW)
+        forward_rs2E = 2'b10;
     else
-        forward_ex_rs2 = 2'b00;
+        forward_rs2E = 2'b00;
 
-    //MEM Stalling DECODE and FETCH
-    if(opcode == 5'b00000 && ((mem_rd == decode_rs1) or (mem_rd == decode_rs2)) && mem_to_reg)
+    //MEM Stalling DECODE and FETCH (read after load)
+    if(( (data_rdM == rs1D) or (data_rdM == rs2D) ) && mem_to_regM)
     begin
-        stall_decode = 1'b1;
-        stall_fetch  = 1'b1;
-        flush_ex     = 1'b1;
+        stallF = 1'b1;
+        stallD = 1'b1;
+        flushE = 1'b1;
     end
     else
     begin
-        stall_decode = 1'b0;
-        stall_fetch  = 1'b0;
-        flush_ex     = 1'b0;
+        stallF = 1'b0;
+        stallD = 1'b0;
+        flushE = 1'b0;
     end
 
-    //FETCH and EX Refreshing (Wrong prediction)
-    if(opcode == 5'b11000)//branch or jump
+    //FETCH and EX Refreshing (wrong prediction)
+    if(br_taken)
     begin
-        
+        flushD = 1'b1;
+        flushE = 1'b1;
+    end
+    else begin
+        flushD = 1'b0;
+        flushE = 1'b0;
     end
 end
 endmodule
