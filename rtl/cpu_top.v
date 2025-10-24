@@ -93,14 +93,16 @@ module cpu_top
         .less   (less       )
     );
     
+    wire br_taken;
     rv_nextpc_gen u_rv_nextpc_gen(
-        .zero   (zero       ),
-        .less   (less       ),
-        .branch (branch     ),
-        .pc     (pc_current ),
-        .rs     (data_rd1   ),
-        .imm    (imm        ),
-        .nextpc (nextpc     )
+        .zero    (zero       ),
+        .less    (less       ),
+        .branch  (branch     ),
+        .pc      (pc_current ),
+        .rs      (data_rd1   ),
+        .imm     (imm        ),
+        .nextpc  (nextpc     ),
+        .br_taken(br_taken   )
     );
 
     wire [DATA_WIDTH - 1 : 0] data_rd;
