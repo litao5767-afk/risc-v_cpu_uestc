@@ -98,16 +98,16 @@ endtask
 
 initial begin
     case(IMEM_INIT_FILE)
-        "testbench/test_compiled_with_ldst/rv32ui-p-lb-inst.mem": monitor_pass(32'h0000041C, 32'h000003FC, "rv32ui-p-lb");
-        "testbench/test_compiled_with_ldst/rv32ui-p-lbu-inst.mem": monitor_pass(32'h0000041C, 32'h000003FC, "rv32ui-p-lbu");
-        "testbench/test_compiled_with_ldst/rv32ui-p-ld_st-inst.mem": monitor_pass(32'h00001018, 32'h00000FF8, "rv32ui-p-ld_st");
-        "testbench/test_compiled_with_ldst/rv32ui-p-lh-inst.mem": monitor_pass(32'h0000044C, 32'h0000042C, "rv32ui-p-lh");
-        "testbench/test_compiled_with_ldst/rv32ui-p-lhu-inst.mem": monitor_pass(32'h00000468, 32'h00000448, "rv32ui-p-lhu");
-        "testbench/test_compiled_with_ldst/rv32ui-p-lw-inst.mem": monitor_pass(32'h0000047C, 32'h0000045C, "rv32ui-p-lw");
-        "testbench/test_compiled_with_ldst/rv32ui-p-sb-inst.mem": monitor_pass(32'h00000624, 32'h00000604, "rv32ui-p-sb");
-        "testbench/test_compiled_with_ldst/rv32ui-p-sh-inst.mem": monitor_pass(32'h000006A8, 32'h00000688, "rv32ui-p-sh");
-        "testbench/test_compiled_with_ldst/rv32ui-p-st_ld-inst.mem": monitor_pass(32'h00000898, 32'h00000878, "rv32ui-p-st_ld");
-        "testbench/test_compiled_with_ldst/rv32ui-p-sw-inst.mem": monitor_pass(32'h000006B4, 32'h00000694, "rv32ui-p-sw");
+        "testbench/test_compiled_with_ldst/rv32ui-p-lb-inst.mem": monitor_pass(32'h0000041C, 32'h00000404, "rv32ui-p-lb");
+        "testbench/test_compiled_with_ldst/rv32ui-p-lbu-inst.mem": monitor_pass(32'h0000041C, 32'h00000404, "rv32ui-p-lbu");
+        "testbench/test_compiled_with_ldst/rv32ui-p-ld_st-inst.mem": monitor_pass(32'h00001018, 32'h000001000, "rv32ui-p-ld_st");
+        "testbench/test_compiled_with_ldst/rv32ui-p-lh-inst.mem": monitor_pass(32'h0000044C, 32'h00000434, "rv32ui-p-lh");
+        "testbench/test_compiled_with_ldst/rv32ui-p-lhu-inst.mem": monitor_pass(32'h00000468, 32'h00000450, "rv32ui-p-lhu");
+        "testbench/test_compiled_with_ldst/rv32ui-p-lw-inst.mem": monitor_pass(32'h0000047C, 32'h00000464, "rv32ui-p-lw");
+        "testbench/test_compiled_with_ldst/rv32ui-p-sb-inst.mem": monitor_pass(32'h00000624, 32'h0000060C, "rv32ui-p-sb");
+        "testbench/test_compiled_with_ldst/rv32ui-p-sh-inst.mem": monitor_pass(32'h000006A8, 32'h00000690, "rv32ui-p-sh");
+        "testbench/test_compiled_with_ldst/rv32ui-p-st_ld-inst.mem": monitor_pass(32'h00000898, 32'h00000880, "rv32ui-p-st_ld");
+        "testbench/test_compiled_with_ldst/rv32ui-p-sw-inst.mem": monitor_pass(32'h000006B4, 32'h0000069C, "rv32ui-p-sw");
     endcase
 end
 endmodule
