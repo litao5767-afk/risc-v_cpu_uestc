@@ -56,7 +56,7 @@ initial begin       //finish
     $finish;
 end
 
-string IMEM_INIT_FILE = "testbench/test_compiled_no_ldst/rv32ui-p-add-inst.mem"; // 指令存储器的初始化文件路径
+string IMEM_INIT_FILE = "testbench/test_compiled_no_ldst/rv32ui-p-jalr-inst.mem"; // 指令存储器的初始化文件路径
 initial begin
     $readmemh(IMEM_INIT_FILE, u_cpu_top.u_inst_mem_s1.mem);
 end
@@ -96,35 +96,36 @@ endtask
 
 initial begin
     case(IMEM_INIT_FILE)
-        "testbench/test_compiled_no_ldst/rv32ui-p-add.mem": monitor_pass(32'h00000690, 32'h00000670, "rv32ui-p-add");
-        "testbench/test_compiled_no_ldst/rv32ui-p-addi.mem": monitor_pass(32'h00000438, 32'h00000418, "rv32ui-p-addi");
-        "testbench/test_compiled_no_ldst/rv32ui-p-and.mem": monitor_pass(32'h00000668, 32'h00000648, "rv32ui-p-and");
-        "testbench/test_compiled_no_ldst/rv32ui-p-andi.mem": monitor_pass(32'h00000370, 32'h00000350, "rv32ui-p-andi");
-        "testbench/test_compiled_no_ldst/rv32ui-p-auipc.mem": monitor_pass(32'h000001F4, 32'h000001D4, "rv32ui-p-auipc");
-        "testbench/test_compiled_no_ldst/rv32ui-p-beq.mem": monitor_pass(32'h00000470, 32'h00000450, "rv32ui-p-beq");
-        "testbench/test_compiled_no_ldst/rv32ui-p-bge.mem": monitor_pass(32'h000004D0, 32'h000004B0, "rv32ui-p-bge");
-        "testbench/test_compiled_no_ldst/rv32ui-p-bgeu.mem": monitor_pass(32'h00000504, 32'h000004E4, "rv32ui-p-bgeu");
-        "testbench/test_compiled_no_ldst/rv32ui-p-blt.mem": monitor_pass(32'h00000470, 32'h00000450, "rv32ui-p-blt");
-        "testbench/test_compiled_no_ldst/rv32ui-p-bltu.mem": monitor_pass(32'h000004A4, 32'h00000484, "rv32ui-p-bltu");
-        "testbench/test_compiled_no_ldst/rv32ui-p-bne.mem": monitor_pass(32'h00000474, 32'h00000454, "rv32ui-p-bne");
-        "testbench/test_compiled_no_ldst/rv32ui-p-jal.mem": monitor_pass(32'h00000204, 32'h000001E4, "rv32ui-p-jal");
-        "testbench/test_compiled_no_ldst/rv32ui-p-jalr.mem": monitor_pass(32'h000002A4, 32'h00000284, "rv32ui-p-jalr");
-        "testbench/test_compiled_no_ldst/rv32ui-p-lui.mem": monitor_pass(32'h00000210, 32'h000001F0, "rv32ui-p-lui");
-        "testbench/test_compiled_no_ldst/rv32ui-p-or.mem": monitor_pass(32'h00000674, 32'h00000654, "rv32ui-p-or");
-        "testbench/test_compiled_no_ldst/rv32ui-p-ori.mem": monitor_pass(32'h0000038C, 32'h0000036C, "rv32ui-p-ori");
-        "testbench/test_compiled_no_ldst/rv32ui-p-sll.mem": monitor_pass(32'h00000700, 32'h000006E0, "rv32ui-p-sll");
-        "testbench/test_compiled_no_ldst/rv32ui-p-slli.mem": monitor_pass(32'h00000434, 32'h00000414, "rv32ui-p-slli");
-        "testbench/test_compiled_no_ldst/rv32ui-p-slt.mem": monitor_pass(32'h00000678, 32'h00000658, "rv32ui-p-slt");
-        "testbench/test_compiled_no_ldst/rv32ui-p-slti.mem": monitor_pass(32'h00000424, 32'h00000404, "rv32ui-p-slti");
-        "testbench/test_compiled_no_ldst/rv32ui-p-sltiu.mem": monitor_pass(32'h00000424, 32'h00000404, "rv32ui-p-sltiu");
-        "testbench/test_compiled_no_ldst/rv32ui-p-sltu.mem": monitor_pass(32'h00000678, 32'h00000658, "rv32ui-p-sltu");
-        "testbench/test_compiled_no_ldst/rv32ui-p-sra.mem": monitor_pass(32'h0000074C, 32'h0000072C, "rv32ui-p-sra");
-        "testbench/test_compiled_no_ldst/rv32ui-p-srai.mem": monitor_pass(32'h00000468, 32'h00000448, "rv32ui-p-srai");
-        "testbench/test_compiled_no_ldst/rv32ui-p-srl.mem": monitor_pass(32'h00000734, 32'h00000714, "rv32ui-p-srl");
-        "testbench/test_compiled_no_ldst/rv32ui-p-srli.mem": monitor_pass(32'h00000450, 32'h00000430, "rv32ui-p-srli");
-        "testbench/test_compiled_no_ldst/rv32ui-p-sub.mem": monitor_pass(32'h00000670, 32'h00000650, "rv32ui-p-sub");
-        "testbench/test_compiled_no_ldst/rv32ui-p-xor.mem": monitor_pass(32'h00000670, 32'h00000650, "rv32ui-p-xor");
-        "testbench/test_compiled_no_ldst/rv32ui-p-xori.mem": monitor_pass(32'h00000394, 32'h00000374, "rv32ui-p-xori");
+        "testbench/test_compiled_no_ldst/rv32ui-p-add-inst.mem":   monitor_pass(32'h00000690, 32'h00000678, "rv32ui-p-add");
+        "testbench/test_compiled_no_ldst/rv32ui-p-addi-inst.mem":  monitor_pass(32'h00000438, 32'h00000420, "rv32ui-p-addi");
+        "testbench/test_compiled_no_ldst/rv32ui-p-and-inst.mem":   monitor_pass(32'h00000668, 32'h00000650, "rv32ui-p-and");
+        "testbench/test_compiled_no_ldst/rv32ui-p-andi-inst.mem":  monitor_pass(32'h00000370, 32'h00000358, "rv32ui-p-andi");
+        "testbench/test_compiled_no_ldst/rv32ui-p-auipc-inst.mem": monitor_pass(32'h000001F4, 32'h000001DC, "rv32ui-p-auipc");
+        "testbench/test_compiled_no_ldst/rv32ui-p-beq-inst.mem":   monitor_pass(32'h00000470, 32'h00000458, "rv32ui-p-beq");
+        "testbench/test_compiled_no_ldst/rv32ui-p-bge-inst.mem":   monitor_pass(32'h000004D0, 32'h000004B8, "rv32ui-p-bge");
+        "testbench/test_compiled_no_ldst/rv32ui-p-bgeu-inst.mem":  monitor_pass(32'h00000504, 32'h000004EC, "rv32ui-p-bgeu");
+        "testbench/test_compiled_no_ldst/rv32ui-p-blt-inst.mem":   monitor_pass(32'h00000470, 32'h00000458, "rv32ui-p-blt");
+        "testbench/test_compiled_no_ldst/rv32ui-p-bltu-inst.mem":  monitor_pass(32'h000004A4, 32'h0000048C, "rv32ui-p-bltu");
+        "testbench/test_compiled_no_ldst/rv32ui-p-bne-inst.mem":   monitor_pass(32'h00000474, 32'h0000045C, "rv32ui-p-bne");
+        "testbench/test_compiled_no_ldst/rv32ui-p-fence_i-inst.mem":   monitor_pass(32'h0000027C, 32'h00000264, "rv32ui-p-fence_i");
+        "testbench/test_compiled_no_ldst/rv32ui-p-jal-inst.mem":   monitor_pass(32'h00000204, 32'h000001EC, "rv32ui-p-jal");
+        "testbench/test_compiled_no_ldst/rv32ui-p-jalr-inst.mem":  monitor_pass(32'h000002A4, 32'h0000028C, "rv32ui-p-jalr");
+        "testbench/test_compiled_no_ldst/rv32ui-p-lui-inst.mem":   monitor_pass(32'h00000210, 32'h000001F8, "rv32ui-p-lui");
+        "testbench/test_compiled_no_ldst/rv32ui-p-or-inst.mem":    monitor_pass(32'h00000674, 32'h0000065C, "rv32ui-p-or");
+        "testbench/test_compiled_no_ldst/rv32ui-p-ori-inst.mem":   monitor_pass(32'h0000038C, 32'h00000374, "rv32ui-p-ori");
+        "testbench/test_compiled_no_ldst/rv32ui-p-sll-inst.mem":   monitor_pass(32'h00000700, 32'h000006E8, "rv32ui-p-sll");
+        "testbench/test_compiled_no_ldst/rv32ui-p-slli-inst.mem":  monitor_pass(32'h00000434, 32'h0000041C, "rv32ui-p-slli");
+        "testbench/test_compiled_no_ldst/rv32ui-p-slt-inst.mem":   monitor_pass(32'h00000678, 32'h00000660, "rv32ui-p-slt");
+        "testbench/test_compiled_no_ldst/rv32ui-p-slti-inst.mem":  monitor_pass(32'h00000424, 32'h0000040C, "rv32ui-p-slti");
+        "testbench/test_compiled_no_ldst/rv32ui-p-sltiu-inst.mem": monitor_pass(32'h00000424, 32'h0000040C, "rv32ui-p-sltiu");
+        "testbench/test_compiled_no_ldst/rv32ui-p-sltu-inst.mem":  monitor_pass(32'h00000678, 32'h00000660, "rv32ui-p-sltu");
+        "testbench/test_compiled_no_ldst/rv32ui-p-sra-inst.mem":   monitor_pass(32'h0000074C, 32'h00000734, "rv32ui-p-sra");
+        "testbench/test_compiled_no_ldst/rv32ui-p-srai-inst.mem":  monitor_pass(32'h00000468, 32'h00000450, "rv32ui-p-srai");
+        "testbench/test_compiled_no_ldst/rv32ui-p-srl-inst.mem":   monitor_pass(32'h00000734, 32'h0000071C, "rv32ui-p-srl");
+        "testbench/test_compiled_no_ldst/rv32ui-p-srli-inst.mem":  monitor_pass(32'h00000450, 32'h00000438, "rv32ui-p-srli");
+        "testbench/test_compiled_no_ldst/rv32ui-p-sub-inst.mem":   monitor_pass(32'h00000670, 32'h00000658, "rv32ui-p-sub");
+        "testbench/test_compiled_no_ldst/rv32ui-p-xor-inst.mem":   monitor_pass(32'h00000670, 32'h00000658, "rv32ui-p-xor");
+        "testbench/test_compiled_no_ldst/rv32ui-p-xori-inst.mem":  monitor_pass(32'h00000394, 32'h0000037C, "rv32ui-p-xori");
     endcase
 end
 endmodule

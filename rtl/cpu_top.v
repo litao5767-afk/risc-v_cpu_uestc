@@ -204,7 +204,7 @@ module cpu_top
         .less     (less_s3        ),
         .branch   (branch_s3      ),
         .pc       (pc_current_s3  ),
-        .rs       (data_rd1_s3    ),
+        .rs       (rs1_fwd_s3     ),  // FIX: 使用前递后的 rs1，保证 JALR 用到最新值
         .imm      (imm_s3         ),
         .nextpc   (nextpc_ex      ),  // 使用中间线承接 EX 生成的目标PC
         .br_taken (br_taken       )
@@ -232,7 +232,7 @@ module cpu_top
         end
         else begin
             alu_result_s4 <= alu_result_s3;
-            data_rd2_s4   <= data_rd2_s3;
+            data_rd2_s4   <= rs2_fwd_s3;       // FIX: 打拍已前递的 rs2 到 MEM 用于 store
             mem_write_s4  <= mem_write_s3;
             mem_to_reg_s4 <= mem_to_reg_s3;
             mem_op_s4     <= mem_op_s3;
