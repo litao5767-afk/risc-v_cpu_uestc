@@ -45,18 +45,19 @@
 - B-type: imm = sign_extend({inst[31], inst[7], inst[30:25], inst[11:8], 1'b0})（注意最低位为 0，表示相对偏移以 2 字节对齐的位移）。
 - J-type: imm = sign_extend({inst[31], inst[19:12], inst[20], inst[30:21], 1'b0})（最低位为 0）。
 - U-type: imm = {inst[31:12], 12'b0}（高 20 位直接作为立即数高位）。
+- 移位立即数类（I-type 中的 slli/srli/srai）：shamt = inst[24:20]，其中 srai 需要 funct7 区分算术/逻辑右移。
 
 数学表示（J-type 示例）：
 
 $$imm = \{\{12\{inst[31]\}\}, inst[19:12], inst[20], inst[30:21], 1'b0 \}$$
 
-## jalr 注意事项
+## jal/jalr 注意事项
 
-- `jalr rd, offset(rs1)` 的目标 PC 必须清除最低位：
-
-	PC = (rs1 + offset) & ~1
-
-	这是 RV32I 规范要求，以保证跳转目标对齐。
+- `jal rd, imm`: 跳转至 PC + imm，并向 rd 写回返回地址 PC+4。
+- `jalr rd, offset(rs1)`：
+  - 目标 PC 必须清除最低位：PC = (rs1 + offset) & ~1
+  - 向 rd 写回返回地址 PC+4（这里的 PC 指发起跳转前的取值）。
+  - 该行为与是否实现压缩指令无关，属于 RV32I 基本规范要求。
 
 ## 常见指令编码（示例）
 
@@ -71,7 +72,6 @@ $$imm = \{\{12\{inst[31]\}\}, inst[19:12], inst[20], inst[30:21], 1'b0 \}$$
 （具体 funct3/funct7 编码请参阅官方文档或代码中 `my_pkg.sv` 的定义。）
 
 ---
-
 
 # 关键模块
 
@@ -149,6 +149,16 @@ $$imm = \{\{12\{inst[31]\}\}, inst[19:12], inst[20], inst[30:21], 1'b0 \}$$
 | `data_wr` | input | `DATA_WIDTH` | 写数据 |
 | `data_rd` | output (reg) | `DATA_WIDTH` | 读出数据 |
 
+读写语义说明：
+- 读操作由 `mem_write=0` 且 `mem_op` 选择具体宽度/符号扩展：
+  - lb/lh/lw/lbu/lhu 对应字节/半字/字的有符号或无符号读，按 `addr[1:0]` 选择字内偏移。
+  - 读数据在模块内部完成对齐与符号扩展后输出至 `data_rd`。
+- 写操作由 `wr_en` 有效且 `mem_write=1` 时生效：
+  - sb/sh/sw 按 `addr[1:0]` 生成字节使能掩码，进行部分写。
+- 未对齐访问：
+  - 字（lw/sw）要求 `addr[1:0]==2'b00`；半字（lh/lhu/sh）要求 `addr[0]==1'b0`。
+  - 若发生未对齐行为，当前教学实现通常“按字节掩码写入/读出+拼接”或视为未定义行为；具体以实现代码为准。
+
 ---
 
 ### alu
@@ -194,6 +204,10 @@ $$imm = \{\{12\{inst[31]\}\}, inst[19:12], inst[20], inst[30:21], 1'b0 \}$$
 | `data1` | output | `DATA_WIDTH` | ALU 操作数 1 |
 | `data2` | output | `DATA_WIDTH` | ALU 操作数 2 |
 
+说明：
+- 常见组合：A 取 rs1 或 pc，B 取 rs2、imm 或常数 4（用于 jal/jalr 的返回地址计算）。
+- 具体编码请参见 `my_pkg.sv` 中的 `ALU_SRC_*` 定义。
+
 ---
 
 ### rv_controller
@@ -205,12 +219,16 @@ $$imm = \{\{12\{inst[31]\}\}, inst[19:12], inst[20], inst[30:21], 1'b0 \}$$
 |---|---:|---:|---|
 | `inst` | input | `DATA_WIDTH` | 指令字 |
 | `mem_write` | output | 1 | 内存写使能 |
-| `mem_to_reg` | output | 1 | 写回选择（来自内存） |
+| `mem_to_reg` | output | 1 | 写回选择（1=来自内存） |
 | `reg_write` | output | 1 | 寄存器写使能 |
 | `mem_op` | output | 3 | 内存操作类型 |
 | `alu_op` | output | 4 | ALU 操作编码 |
 | `alu_src` | output | 3 | ALU 源选择编码 |
 | `branch` | output | 3 | 分支/跳转类型编码 |
+
+说明：
+- `mem_to_reg=0` 时，写回来自 ALU；`mem_to_reg=1` 时，写回来自数据存储器。
+- jal/jalr 采用 ALU+常数 4 生成返回地址写回 rd。
 
 ---
 
@@ -229,6 +247,11 @@ $$imm = \{\{12\{inst[31]\}\}, inst[19:12], inst[20], inst[30:21], 1'b0 \}$$
 | `imm` | input | `DATA_WIDTH` | 立即数 |
 | `nextpc` | output (reg) | `ADDR_WIDTH` | 计算得到的下一个 PC |
 
+说明：
+- jal：nextpc = pc + imm
+- jalr：nextpc = (rs1 + imm) & ~1
+- branch：按 `branch` 类型与标志位计算，成立时 pc + imm，否则 pc + 4
+
 ---
 
 ### write_back_sel
@@ -243,12 +266,57 @@ $$imm = \{\{12\{inst[31]\}\}, inst[19:12], inst[20], inst[30:21], 1'b0 \}$$
 | `data_alu_result` | input | `DATA_WIDTH` | ALU 结果 |
 | `data_wr_back` | output | `DATA_WIDTH` | 最终写回寄存器的数据 |
 
+---
+
+### rv_scheduler_control
+描述：流水线控制/仲裁模块，负责数据前推控制、Load-Use 冒险暂停，以及分支失效时的冲刷控制（取指/译码/执行级）。
+
+端口：
+
+| 信号名 | 方向 | 位宽 | 描述 |
+|---|---:|---:|---|
+| `rs1E` | input | 5 | 执行级源寄存器 rs1 编号 |
+| `rs2E` | input | 5 | 执行级源寄存器 rs2 编号 |
+| `rdM` | input | 5 | 访存级目的寄存器 rd 编号 |
+| `rdW` | input | 5 | 写回级目的寄存器 rd 编号 |
+| `reg_writeM` | input | 1 | 访存级是否写回寄存器 |
+| `reg_writeW` | input | 1 | 写回级是否写回寄存器 |
+| `mem_to_regM` | input | 1 | 访存级是否为 Load（1 表示从内存写回） |
+| `br_taken` | input | 1 | 分支预测失败/实际跳转发生需冲刷 |
+| `forward_rs1E` | output | 2 | rs1 的前推选择：00 无、01 WB→EX、10 MEM→EX |
+| `forward_rs2E` | output | 2 | rs2 的前推选择：00 无、01 WB→EX、10 MEM→EX |
+| `stallF` | output | 1 | 取指级暂停（与 `stallD` 同时拉高） |
+| `stallD` | output | 1 | 译码级暂停（Load-Use 冒险时） |
+| `flushD` | output | 1 | 冲刷 IF/ID（分支失效优先） |
+| `flushE` | output | 1 | 冲刷 ID/EX（分支失效或插入气泡） |
+
+说明：
+- 前推优先级 MEM→EX 高于 WB→EX；不启用 EX→EX 以避免零时延组合环。
+- 分支预测失败优先于 Load-Use 冒险：若 `br_taken=1`，同时拉高 `flushD/flushE`；否则当 `mem_to_regM=1` 且 `rdM` 命中 `rs1E/rs2E` 时，`stallF=stallD=1` 且 `flushE=1` 插入气泡。
+
+---
+
+### rv_scheduler_data
+描述：流水线数据前推多路选择模块。根据 `forward_rs1E/forward_rs2E` 选择 EX 级实际送入 ALU 的两个源操作数。
+
+端口：
+
+| 信号名 | 方向 | 位宽 | 描述 |
+|---|---:|---:|---|
+| `alu_src1_data` | input | `DATA_WIDTH` | alu_src_sel 判决后的源操作数1（默认值） |
+| `alu_src2_data` | input | `DATA_WIDTH` | alu_src_sel 判决后的源操作数2（默认值） |
+| `alu_resultM` | input | `DATA_WIDTH` | 访存级的 ALU 结果（用于 MEM→EX 前推） |
+| `dataW` | input | `DATA_WIDTH` | 写回级的数据（用于 WB→EX 前推） |
+| `forward_rs1E` | input | 2 | 源1前推选择：00 默认、01 WB→EX、10 MEM→EX |
+| `forward_rs2E` | input | 2 | 源2前推选择：00 默认、01 WB→EX、10 MEM→EX |
+| `data1E` | output | `DATA_WIDTH` | EX 级实际送入的源操作数1 |
+| `data2E` | output | `DATA_WIDTH` | EX 级实际送入的源操作数2 |
 
 ---
 
 # 使用与仿真
 
-- 仿真与综合命令依赖你的本地工具链（例如 Synopsys VCS、ModelSim/Questa、Icarus Verilog 等）。
+- 仿真与综合命令依赖你的本地工具链（例如 Synopsys VCS、ModelSim/Questa、Icarus Verilog、Verilator 等）。
 - 项目中有 Makefile ，通常可以使用：
 
 ```bash
@@ -256,9 +324,9 @@ $$imm = \{\{12\{inst[31]\}\}, inst[19:12], inst[20], inst[30:21], 1'b0 \}$$
 dmk vcs
 ```
 
-请根据你的仿真环境调整命令。
+请根据你的仿真环境调整命令与顶层 testbench 文件名。
 
 ---
 
 # 参考文档
-- RISC‑V 官方文档（基础整数指令集、用户级架构）： https://riscv.org/specifications/ 
+- RISC‑V 官方文档（基础整数指令集、用户级架构）： https://riscv.org/specifications/
