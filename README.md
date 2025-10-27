@@ -312,6 +312,9 @@ $$imm = \{\{12\{inst[31]\}\}, inst[19:12], inst[20], inst[30:21], 1'b0 \}$$
 | `data1E` | output | `DATA_WIDTH` | EX 级实际送入的源操作数1 |
 | `data2E` | output | `DATA_WIDTH` | EX 级实际送入的源操作数2 |
 
+说明：
+- 选择码 11 预留且禁用（避免 EX→EX 组合环）；未匹配时回退为默认源 `alu_src*_data`。
+
 ---
 
 # 使用与仿真
@@ -323,6 +326,16 @@ $$imm = \{\{12\{inst[31]\}\}, inst[19:12], inst[20], inst[30:21], 1'b0 \}$$
 # 在工程根目录
 dmk vcs
 ```
+
+也可以使用通用命令（示例）：
+- Icarus Verilog:
+  ```bash
+  iverilog -g2012 -o simv $(find ./src -name "*.sv") && vvp simv
+  ```
+- Verilator:
+  ```bash
+  verilator -Wall --cc --exe --build -sv top_tb.sv $(find ./src -name "*.sv") && ./obj_dir/Vtop_tb
+  ```
 
 请根据你的仿真环境调整命令与顶层 testbench 文件名。
 
