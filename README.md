@@ -18,6 +18,9 @@
 | `clk` | input | `1` | 时钟 |
 | `rst_n` | input | `1` | 异步复位（低有效） |
 
+## 总体框图
+![总体框图](./images/top_module.png)
+
 ---
 
 # RISC‑V RV32I 简要参考

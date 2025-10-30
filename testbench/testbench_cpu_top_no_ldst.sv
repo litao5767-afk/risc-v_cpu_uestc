@@ -56,7 +56,7 @@ initial begin       //finish
     $finish;
 end
 
-string IMEM_INIT_FILE = "testbench/test_compiled_no_ldst/rv32ui-p-xori-inst.mem"; // 指令存储器的初始化文件路径
+string IMEM_INIT_FILE = "testbench/test_compiled_no_ldst/rv32ui-p-bgeu-inst.mem"; // 指令存储器的初始化文件路径
 initial begin
     $readmemh(IMEM_INIT_FILE, u_cpu_top.u_inst_mem_s1.mem);
 end

@@ -1,6 +1,8 @@
 *
 !/rtl/
 !/rtl/**
+!/images/
+!/images/**
 !/testbench/
 !/testbench/**
 !.gitignore
